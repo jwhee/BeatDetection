@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatDetection", "BeatDetection\BeatDetection.csproj", "{7A762A38-9C88-48A5-BBD6-E24BDBDC2787}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatDetection.Test", "BeatDetection.Test\BeatDetection.Test.csproj", "{D3DDDA42-0685-447B-908B-FD970B002BB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{7A762A38-9C88-48A5-BBD6-E24BDBDC2787}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A762A38-9C88-48A5-BBD6-E24BDBDC2787}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A762A38-9C88-48A5-BBD6-E24BDBDC2787}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3DDDA42-0685-447B-908B-FD970B002BB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3DDDA42-0685-447B-908B-FD970B002BB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3DDDA42-0685-447B-908B-FD970B002BB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3DDDA42-0685-447B-908B-FD970B002BB8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
