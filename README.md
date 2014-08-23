@@ -1,0 +1,4 @@
+BeatDetection
+=============
+
+Beat Detection Library
