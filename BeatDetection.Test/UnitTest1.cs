@@ -12,12 +12,10 @@ namespace BeatDetection.Test
     {
       using (var soundEngine = new SoundEngine())
       {
-        soundEngine.Play(@"D:\Music\test.mp3");
+        soundEngine.Load(@"D:\Music\test.mp3");
 
-        while(soundEngine.IsPlaying)
-        {
-          // loop forever!
-        }
+        var analyzer = new SpectrumAnalyzer();
+        analyzer.Analyze(soundEngine.Channel);
       }
     }
   }

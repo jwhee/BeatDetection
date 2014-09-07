@@ -29,7 +29,7 @@
       }
     }
 
-    public void Play(string path)
+    public void Load(string path)
     {
       if (File.Exists(path))
       {
@@ -40,10 +40,13 @@
         // Load sound into channel
         this.Verify(fmodSystem.playSound(FMOD.CHANNELINDEX.FREE, fmodSound, true, ref fmodChannel));
         this.Verify(fmodChannel.setVolume(1.0f));
-
-        // Play channel
-        this.Verify(fmodChannel.setPaused(false));
       }
+    }
+
+    public void Play()
+    {
+      // Play channel
+      this.Verify(fmodChannel.setPaused(false));
     }
 
     public void Stop()
@@ -83,6 +86,14 @@
         }
 
         return isPlaying;
+      }
+    }
+
+    public FMOD.Channel Channel
+    {
+      get
+      {
+        return fmodChannel;
       }
     }
 
