@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading;
 
 namespace BeatDetection.Test
 {
@@ -9,6 +10,12 @@ namespace BeatDetection.Test
     [TestMethod]
     public void TestMethod1()
     {
+      using (var box = new FMOD_Wrapper())
+      {
+        box.PlayMusic(@"D:\Music\test.mp3");
+
+        Thread.Sleep(5000);
+      }
     }
   }
 }

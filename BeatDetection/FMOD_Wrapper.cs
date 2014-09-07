@@ -5,7 +5,7 @@
   using System.IO;
   using System.Threading;
 
-  class FMOD_Wrapper
+  public class FMOD_Wrapper : IDisposable
   {
     #region Multithreaded Spectrum Analysing
 
@@ -168,7 +168,7 @@
 
     #region Initialize, Shutdown, Update and Reset methods
 
-    public void Initialize()
+    public FMOD_Wrapper()
     {
       // load FMOD
       Verify(FMOD.Factory.System_Create(ref fmodSystem));
@@ -190,30 +190,19 @@
 
       FFT_WINDOW_TYPE = (int)FMOD.DSP_FFT_WINDOW.BLACKMAN;
 
-      spectrumAnalysisThread = new Thread(new ThreadStart(SpectrumAnalyze));
-      runSpectrumAnalyze = true;
-      spectrumAnalysisThread.Start();
+      //spectrumAnalysisThread = new Thread(new ThreadStart(SpectrumAnalyze));
+      //runSpectrumAnalyze = true;
+      //spectrumAnalysisThread.Start();
     }
 
-    private void Update()
-    {
-      try
-      {
-        fmodSystem.update();
-      }
-      catch (System.Exception)
-      {
-      }
-    }
-
-    public void Shutdown()
+    public void Dispose()
     {
       lock (spectrumLock)
       {
         runSpectrumAnalyze = false;
 
         // Close the thread. If you don't do this here the prgram won't close.
-        spectrumAnalysisThread.Abort();
+        //spectrumAnalysisThread.Abort();
         foreach (FMOD.Sound sound in sounds.Values)
         {
           Verify(sound.release());
@@ -225,6 +214,17 @@
           fmodSystem.release();
           fmodSystem = null;
         }
+      }
+    }
+
+    private void Update()
+    {
+      try
+      {
+        fmodSystem.update();
+      }
+      catch (System.Exception)
+      {
       }
     }
 

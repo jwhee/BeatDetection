@@ -2,7 +2,7 @@
 {
   using System;
 
-  public class SpectrumData
+  public struct SpectrumData
   {
     // specL and specR are the 2 sound channels that FMOD returns, one for left speaker and one for right speaker.
     public float[] specL, specR;
