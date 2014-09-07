@@ -10,6 +10,8 @@
     private FMOD.System fmodSystem;
     private FMOD.Channel fmodChannel;
     private FMOD.Sound fmodSound;
+    private FMOD.DSP highpassFilter;
+    private FMOD.DSP lowpassFilter;
 
     public SoundEngine()
     {
@@ -29,7 +31,7 @@
       }
     }
 
-    public void Load(string path)
+    public SoundEngine Load(string path)
     {
       if (File.Exists(path))
       {
@@ -40,7 +42,46 @@
         // Load sound into channel
         this.Verify(fmodSystem.playSound(FMOD.CHANNELINDEX.FREE, fmodSound, true, ref fmodChannel));
         this.Verify(fmodChannel.setVolume(1.0f));
+
+        // Initialize highpass filter
+        fmodSystem.createDSPByType(FMOD.DSP_TYPE.HIGHPASS, ref highpassFilter);
+        fmodSystem.createDSPByType(FMOD.DSP_TYPE.LOWPASS, ref lowpassFilter);
+
+        FMOD.DSPConnection con = null;
+        fmodChannel.addDSP(highpassFilter, ref con);
+        fmodChannel.addDSP(lowpassFilter, ref con);
+
+        highpassFilter.setBypass(true);
+        lowpassFilter.setBypass(true);
       }
+
+      return this;
+    }
+
+    public SoundEngine AddHighpass(float cutoff = 5000.0f)
+    {
+      highpassFilter.setParameter((int)FMOD.DSP_HIGHPASS.CUTOFF, cutoff);
+      highpassFilter.setBypass(false);
+
+      return this;
+    }
+
+    public void RemoveHighpass()
+    {
+      highpassFilter.setBypass(true);
+    }
+
+    public SoundEngine AddLowpass(float cutoff = 5000.0f)
+    {
+      lowpassFilter.setParameter((int)FMOD.DSP_LOWPASS.CUTOFF, cutoff);
+      lowpassFilter.setBypass(false);
+
+      return this;
+    }
+
+    public void RemoveLowpass()
+    {
+      lowpassFilter.setBypass(true);
     }
 
     public void Play()

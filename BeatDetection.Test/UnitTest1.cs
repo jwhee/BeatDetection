@@ -7,8 +7,8 @@ namespace BeatDetection.Test
   [TestClass]
   public class UnitTest1
   {
-    [TestMethod]
-    public void TestMethod1()
+    //[TestMethod]
+    public void AnalyzeTest()
     {
       using (var soundEngine = new SoundEngine())
       {
@@ -16,6 +16,23 @@ namespace BeatDetection.Test
 
         var analyzer = new SpectrumAnalyzer();
         analyzer.Analyze(soundEngine.Channel);
+      }
+    }
+
+    [TestMethod]
+    public void PlayTest()
+    {
+      using (var soundEngine = new SoundEngine())
+      {
+        soundEngine.Load(@"D:\Music\test.mp3")
+          .AddLowpass(200.0f)
+          .AddHighpass(100.0f);
+
+        //soundEngine.RemoveHighpass();
+
+        soundEngine.Play();
+
+        while (soundEngine.IsPlaying) { }
       }
     }
   }
