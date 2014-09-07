@@ -44,15 +44,15 @@
         this.Verify(fmodChannel.setVolume(1.0f));
 
         // Initialize highpass filter
-        fmodSystem.createDSPByType(FMOD.DSP_TYPE.HIGHPASS, ref highpassFilter);
-        fmodSystem.createDSPByType(FMOD.DSP_TYPE.LOWPASS, ref lowpassFilter);
+        this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.HIGHPASS, ref highpassFilter));
+        this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.LOWPASS, ref lowpassFilter));
 
-        FMOD.DSPConnection con = null;
-        fmodChannel.addDSP(highpassFilter, ref con);
-        fmodChannel.addDSP(lowpassFilter, ref con);
+        FMOD.DSPConnection dummy = null;
+        this.Verify(fmodChannel.addDSP(highpassFilter, ref dummy));
+        this.Verify(fmodChannel.addDSP(lowpassFilter, ref dummy));
 
-        highpassFilter.setBypass(true);
-        lowpassFilter.setBypass(true);
+        this.Verify(highpassFilter.setBypass(true));
+        this.Verify(lowpassFilter.setBypass(true));
       }
 
       return this;
@@ -60,28 +60,28 @@
 
     public SoundEngine AddHighpass(float cutoff = 5000.0f)
     {
-      highpassFilter.setParameter((int)FMOD.DSP_HIGHPASS.CUTOFF, cutoff);
-      highpassFilter.setBypass(false);
+      this.Verify(highpassFilter.setParameter((int)FMOD.DSP_HIGHPASS.CUTOFF, cutoff));
+      this.Verify(highpassFilter.setBypass(false));
 
       return this;
     }
 
     public void RemoveHighpass()
     {
-      highpassFilter.setBypass(true);
+      this.Verify(highpassFilter.setBypass(true));
     }
 
     public SoundEngine AddLowpass(float cutoff = 5000.0f)
     {
-      lowpassFilter.setParameter((int)FMOD.DSP_LOWPASS.CUTOFF, cutoff);
-      lowpassFilter.setBypass(false);
+      this.Verify(lowpassFilter.setParameter((int)FMOD.DSP_LOWPASS.CUTOFF, cutoff));
+      this.Verify(lowpassFilter.setBypass(false));
 
       return this;
     }
 
     public void RemoveLowpass()
     {
-      lowpassFilter.setBypass(true);
+      this.Verify(lowpassFilter.setBypass(true));
     }
 
     public void Play()

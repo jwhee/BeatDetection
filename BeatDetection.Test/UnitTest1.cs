@@ -26,11 +26,8 @@ namespace BeatDetection.Test
       {
         soundEngine.Load(@"D:\Music\test.mp3")
           .AddLowpass(200.0f)
-          .AddHighpass(100.0f);
-
-        //soundEngine.RemoveHighpass();
-
-        soundEngine.Play();
+          .AddHighpass(100.0f)
+          .Play();
 
         while (soundEngine.IsPlaying) { }
       }

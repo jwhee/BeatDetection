@@ -49,56 +49,56 @@ namespace BeatDetection
       channel.getSpectrum(data.SpectrumR, SPECTRUM_SIZE, 1, FFT_WINDOW_TYPE);
 
       // 1) Compute Instant Energy
-      var instantEnergy = 0.0f;
+      data.InstantEnergy = 0.0f;
       for (int i = 0; i < data.Size; ++i)
       {
-        instantEnergy += (data.SpectrumL[i] * data.SpectrumL[i]) + (data.SpectrumR[i] * data.SpectrumR[i]);
+        data.InstantEnergy += (data.SpectrumL[i] * data.SpectrumL[i]) + (data.SpectrumR[i] * data.SpectrumR[i]);
       }
         
       // 2) Compute Average Energy from Energy Buffer
-      var averageEnergy = 0.0f;
+      data.AverageEnergy = 0.0f;
       for (int i = 0; i < energyHistory.Count; ++i)
       {
-        averageEnergy += energyHistory[i];
+        data.AverageEnergy += energyHistory[i];
       }
 
       if (energyHistory.Count > 0)
       {
-        averageEnergy = averageEnergy / energyHistory.Count;
+        data.AverageEnergy = data.AverageEnergy / energyHistory.Count;
       }
 
       // 3) Compute variance by comparing values in energyHistory and the average energy
-      var variance = 0.0f;
+      data.Variance = 0.0f;
       for (int i = 0; i < energyHistory.Count; ++i)
       {
-        variance += (energyHistory[i] - averageEnergy) * (energyHistory[i] - averageEnergy);
+        data.Variance += (energyHistory[i] - data.AverageEnergy) * (energyHistory[i] - data.AverageEnergy);
       }
         
       if (energyHistory.Count > 0)
       {
-        variance = variance / energyHistory.Count;
+        data.Variance = data.Variance / energyHistory.Count;
       }
 
       // 4) Compute the constant value used to determine whether there's a beat or not.
-      float multiplier = 0;
+      data.BeatSensibility = 0;
 
-      if (variance > 200)
+      if (data.Variance > 200)
       {
-        multiplier = 1.0f;
+        data.BeatSensibility = 1.0f;
       }
-      else if (variance < 25)
+      else if (data.Variance < 25)
       {
-        multiplier = 1.45f;
+        data.BeatSensibility = 1.45f;
       }
       else
       {
-        multiplier = (constantRegressionValues[0] * variance) + constantRegressionValues[1];
+        data.BeatSensibility = (constantRegressionValues[0] * data.Variance) + constantRegressionValues[1];
       }
 
       // 5) Update Energy History Buffer
       if (energyHistory.Count < historySize)
       {
-        energyHistory.Add(instantEnergy);
+        energyHistory.Add(data.InstantEnergy);
         historyIndex++;
       }
       else
@@ -108,19 +108,15 @@ namespace BeatDetection
         else
           historyIndex = 0;
 
-        energyHistory[historyIndex] = instantEnergy;
+        energyHistory[historyIndex] = data.InstantEnergy;
       }
 
       // 6) Compare instant energy with the averageEnergy times the constant value.`
-      if (instantEnergy > (multiplier * averageEnergy))
+      if (data.InstantEnergy > (data.BeatSensibility * data.AverageEnergy))
         data.IsBeat = true;
       else
         data.IsBeat = false;
 
-      data.InstantEnergy = instantEnergy;
-      data.AverageEnergy = averageEnergy;
-      data.Variance = variance;
-      data.BeatSensibility = multiplier;
       data.HistorySize = energyHistory.Count;
 
       return data;
