@@ -18,6 +18,7 @@ namespace BeatDetection.SampleMonoGame
   {
     GraphicsDeviceManager graphics;
     SpriteBatch spriteBatch;
+    SoundEngine soundEngine;
 
     public Game1()
       : base()
@@ -47,6 +48,7 @@ namespace BeatDetection.SampleMonoGame
     {
       // Create a new SpriteBatch, which can be used to draw textures.
       spriteBatch = new SpriteBatch(GraphicsDevice);
+      soundEngine = new SoundEngine();
 
       // TODO: use this.Content to load your game content here
     }
@@ -58,6 +60,7 @@ namespace BeatDetection.SampleMonoGame
     protected override void UnloadContent()
     {
       // TODO: Unload any non ContentManager content here
+      soundEngine.Dispose();
     }
 
     /// <summary>
@@ -71,6 +74,14 @@ namespace BeatDetection.SampleMonoGame
         Exit();
 
       // TODO: Add your update logic here
+      if(soundEngine.IsPlaying == false)
+      {
+        soundEngine.Load(@"D:\Music\test.mp3")
+          .AddLowpass(200.0f)
+          .AddHighpass(100.0f)
+          .Play();
+      }
+
 
       base.Update(gameTime);
     }
