@@ -68,6 +68,24 @@
       }
     }
 
+    public bool IsPlaying
+    {
+      get
+      {
+        bool isPlaying = false;
+
+        if (fmodChannel != null)
+        {
+          if (fmodChannel.isPlaying(ref isPlaying) != FMOD.RESULT.OK)
+          {
+            isPlaying = false;
+          }
+        }
+
+        return isPlaying;
+      }
+    }
+
     private void Verify(FMOD.RESULT result)
     {
       if (result != FMOD.RESULT.OK)

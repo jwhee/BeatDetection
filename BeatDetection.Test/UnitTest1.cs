@@ -14,7 +14,10 @@ namespace BeatDetection.Test
       {
         soundEngine.Play(@"D:\Music\test.mp3");
 
-        Thread.Sleep(5000);
+        while(soundEngine.IsPlaying)
+        {
+          // loop forever!
+        }
       }
     }
   }
