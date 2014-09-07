@@ -10,9 +10,9 @@ namespace BeatDetection.Test
     [TestMethod]
     public void TestMethod1()
     {
-      using (var box = new FMOD_Wrapper())
+      using (var soundEngine = new SoundEngine())
       {
-        box.PlayMusic(@"D:\Music\test.mp3");
+        soundEngine.Play(@"D:\Music\test.mp3");
 
         Thread.Sleep(5000);
       }

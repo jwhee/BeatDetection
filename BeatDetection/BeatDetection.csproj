@@ -46,6 +46,7 @@
     <Compile Include="FMOD\fmod_errors.cs" />
     <Compile Include="FMOD\fmod_memoryinfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SoundEngine.cs" />
     <Compile Include="SpectrumBuffer.cs" />
     <Compile Include="SpectrumData.cs" />
   </ItemGroup>
