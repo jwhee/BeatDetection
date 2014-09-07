@@ -1,23 +1,76 @@
 ﻿namespace BeatDetection
 {
   using System;
+  using System.Collections.Concurrent;
   using System.IO;
+  using System.Threading.Tasks;
 
   public class SoundEngine : IDisposable
   {
     private const int NUM_MAX_CHANNELS = 8;
 
     private FMOD.System fmodSystem;
-    private FMOD.Channel fmodChannel;
-    private FMOD.Sound fmodSound;
+    private FMOD.Channel analyzeChannel;
+    private FMOD.Sound analyzeSound;
     private FMOD.DSP highpassFilter;
     private FMOD.DSP lowpassFilter;
+
+    private FMOD.Channel playChannel;
+    private FMOD.Sound playSound;
+
+    private SpectrumAnalyzer analyzer;
+
+    public bool IsPlaying
+    {
+      get
+      {
+        bool isPlaying = false;
+
+        if (playChannel != null)
+        {
+          if (playChannel.isPlaying(ref isPlaying) != FMOD.RESULT.OK)
+          {
+            isPlaying = false;
+          }
+        }
+
+        return isPlaying;
+      }
+    }
+
+    public bool IsAnalyzeChannelPlaying
+    {
+      get
+      {
+        bool isPlaying = false;
+
+        if (analyzeChannel != null)
+        {
+          if (analyzeChannel.isPlaying(ref isPlaying) != FMOD.RESULT.OK)
+          {
+            isPlaying = false;
+          }
+        }
+
+        return isPlaying;
+      }
+    }
+
+    public FMOD.Channel AnalyzeChannel
+    {
+      get
+      {
+        return analyzeChannel;
+      }
+    }
 
     public SoundEngine()
     {
       // Initialize fmod system
       this.Verify(FMOD.Factory.System_Create(ref fmodSystem));
       this.Verify(fmodSystem.init(NUM_MAX_CHANNELS, FMOD.INITFLAGS.NORMAL, IntPtr.Zero));
+
+      analyzer = new SpectrumAnalyzer();
     }
 
     public void Dispose()
@@ -37,22 +90,26 @@
       {
         // Load music into sound
         FMOD.MODE mode = FMOD.MODE.SOFTWARE | FMOD.MODE.LOOP_OFF | FMOD.MODE.ACCURATETIME;
-        this.Verify(fmodSystem.createStream(path, mode, ref fmodSound));
+        this.Verify(fmodSystem.createStream(path, mode, ref analyzeSound));
+        this.Verify(fmodSystem.createStream(path, mode, ref playSound));
 
-        // Load sound into channel
-        this.Verify(fmodSystem.playSound(FMOD.CHANNELINDEX.FREE, fmodSound, true, ref fmodChannel));
-        this.Verify(fmodChannel.setVolume(1.0f));
+        // Load sound into analyze channel
+        this.Verify(fmodSystem.playSound(FMOD.CHANNELINDEX.FREE, analyzeSound, true, ref analyzeChannel));
+        this.Verify(analyzeChannel.setMute(true));
+
+        // Load sound into play channel
+        this.Verify(fmodSystem.playSound(FMOD.CHANNELINDEX.FREE, playSound, true, ref playChannel));
+        this.Verify(playChannel.setVolume(1.0f));
 
         // Initialize highpass filter
         this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.HIGHPASS, ref highpassFilter));
         this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.LOWPASS, ref lowpassFilter));
 
         FMOD.DSPConnection dummy = null;
-        this.Verify(fmodChannel.addDSP(highpassFilter, ref dummy));
-        this.Verify(fmodChannel.addDSP(lowpassFilter, ref dummy));
+        this.Verify(analyzeChannel.addDSP(highpassFilter, ref dummy));
+        this.Verify(analyzeChannel.addDSP(lowpassFilter, ref dummy));
 
-        this.Verify(highpassFilter.setBypass(true));
-        this.Verify(lowpassFilter.setBypass(true));
+        analyzer.Initialize(this.analyzeChannel);
       }
 
       return this;
@@ -84,57 +141,111 @@
       this.Verify(lowpassFilter.setBypass(true));
     }
 
-    public void Play()
+    public async Task Play(int secondsDelay = 1)
     {
       // Play channel
-      this.Verify(fmodChannel.setPaused(false));
+      this.Verify(analyzeChannel.setPaused(false));
+
+      await Task.Delay(secondsDelay * 1000);
+
+      this.Verify(playChannel.setPaused(false));
+    }
+
+    ConcurrentQueue<uint> beatPositions = new ConcurrentQueue<uint>();
+    bool lastUpdateIsBeat = false;
+    public void Update()
+    {
+      fmodSystem.update();
+
+      if (this.IsAnalyzeChannelPlaying)
+      {
+        uint pos = 0;
+        this.analyzeChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
+
+        var data = analyzer.AnalyzePosition(this.analyzeChannel);
+        if (data.IsBeat)
+        {
+          if (lastUpdateIsBeat == false)
+          {
+            beatPositions.Enqueue(pos);
+          }
+
+          lastUpdateIsBeat = true;
+        }
+        else
+        {
+          lastUpdateIsBeat = false;
+        }
+      }
+    }
+
+    public bool IsBeat()
+    {
+      var isBeat = false;
+
+      uint pos = 0;
+      this.playChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
+
+      if(pos != 0 && beatPositions.Count > 0)
+      {
+        uint nextBeat = 0;
+        if (beatPositions.TryPeek(out nextBeat))
+        {
+          while (nextBeat < pos)
+          {
+            beatPositions.TryDequeue(out nextBeat);
+            
+            if(!beatPositions.TryPeek(out nextBeat))
+            {
+              break;
+            }
+
+            isBeat = true;
+          }
+        }
+      }
+
+      return isBeat;
     }
 
     public void Stop()
     {
-      if(fmodChannel != null)
+      if(analyzeChannel != null)
       {
         try
         {
-          fmodChannel.stop();
+          analyzeChannel.stop();
         }
         catch (Exception)
         {
           // Do nothing
         }
-        fmodChannel = null;
+        analyzeChannel = null;
       }
 
-      if(fmodSound != null)
+      if (playChannel != null)
       {
-        fmodSound.release();
-        fmodSound = null;
-      }
-    }
-
-    public bool IsPlaying
-    {
-      get
-      {
-        bool isPlaying = false;
-
-        if (fmodChannel != null)
+        try
         {
-          if (fmodChannel.isPlaying(ref isPlaying) != FMOD.RESULT.OK)
-          {
-            isPlaying = false;
-          }
+          playChannel.stop();
         }
-
-        return isPlaying;
+        catch (Exception)
+        {
+          // Do nothing
+        }
+        playChannel = null;
       }
-    }
 
-    public FMOD.Channel Channel
-    {
-      get
+      if(analyzeSound != null)
       {
-        return fmodChannel;
+        analyzeSound.release();
+        analyzeSound = null;
+      }
+
+      if (playSound != null)
+      {
+        playSound.release();
+        playSound = null;
       }
     }
 

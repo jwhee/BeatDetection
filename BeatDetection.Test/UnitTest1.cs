@@ -15,7 +15,7 @@ namespace BeatDetection.Test
         soundEngine.Load(@"D:\Music\test.mp3");
 
         var analyzer = new SpectrumAnalyzer();
-        analyzer.Analyze(soundEngine.Channel);
+        analyzer.Analyze(soundEngine.AnalyzeChannel);
       }
     }
 

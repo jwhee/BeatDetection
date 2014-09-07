@@ -19,6 +19,7 @@ namespace BeatDetection.SampleMonoGame
     GraphicsDeviceManager graphics;
     SpriteBatch spriteBatch;
     SoundEngine soundEngine;
+    bool playing = false;
 
     public Game1()
       : base()
@@ -40,6 +41,8 @@ namespace BeatDetection.SampleMonoGame
       base.Initialize();
     }
 
+    Texture2D rect1;
+    Texture2D rect2;
     /// <summary>
     /// LoadContent will be called once per game and is the place to load
     /// all of your content.
@@ -51,6 +54,14 @@ namespace BeatDetection.SampleMonoGame
       soundEngine = new SoundEngine();
 
       // TODO: use this.Content to load your game content here
+      rect1 = new Texture2D(graphics.GraphicsDevice, 80, 30);
+      rect2 = new Texture2D(graphics.GraphicsDevice, 80, 30);
+
+      Color[] data = new Color[80 * 30];
+      for (int i = 0; i < data.Length; ++i) data[i] = Color.White;
+      rect1.SetData(data);
+      for (int i = 0; i < data.Length; ++i) data[i] = Color.Black;
+      rect2.SetData(data);
     }
 
     /// <summary>
@@ -74,18 +85,43 @@ namespace BeatDetection.SampleMonoGame
         Exit();
 
       // TODO: Add your update logic here
-      if(soundEngine.IsPlaying == false)
+      if(playing == false)
       {
-        soundEngine.Load(@"D:\Music\test.mp3")
-          .AddLowpass(200.0f)
-          .AddHighpass(100.0f)
-          .Play();
+        soundEngine.Load(@"D:\Music\test2.mp3")
+          .AddLowpass(100.0f)
+          .Play(1);
+        playing = true;
       }
 
+      soundEngine.Update();
+
+      if (soundEngine.IsBeat())
+      {
+        if (lastDrawIsBeat == false)
+        {
+          if (drawTexture1)
+          {
+            drawTexture1 = false;
+          }
+          else
+          {
+            drawTexture1 = true;
+          }
+        }
+
+        lastDrawIsBeat = true;
+      }
+      else
+      {
+        lastDrawIsBeat = false;
+      }
 
       base.Update(gameTime);
     }
 
+    Color testColor = Color.White;
+    bool lastDrawIsBeat = false;
+    bool drawTexture1 = true;
     /// <summary>
     /// This is called when the game should draw itself.
     /// </summary>
@@ -94,7 +130,19 @@ namespace BeatDetection.SampleMonoGame
     {
       GraphicsDevice.Clear(Color.CornflowerBlue);
 
-      // TODO: Add your drawing code here
+      Vector2 coor = new Vector2(10, 20);
+
+      spriteBatch.Begin();
+      if(drawTexture1)
+      {
+        spriteBatch.Draw(rect1, coor, Color.White);
+      }
+      else
+      {
+        spriteBatch.Draw(rect2, coor, Color.White);
+      }
+
+      spriteBatch.End();
 
       base.Draw(gameTime);
     }
