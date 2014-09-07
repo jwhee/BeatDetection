@@ -84,17 +84,16 @@ namespace BeatDetection.SampleMonoGame
       if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
         Exit();
 
-      // TODO: Add your update logic here
       if(playing == false)
       {
-        soundEngine.Load(@"D:\Music\test2.mp3")
-          .AddLowpass(100.0f)
-          .Play(1);
+        var task = soundEngine.Load(@"D:\Music\test.mp3")
+                    .AddLowpass(100.0f)
+                    .Play(1);
+
         playing = true;
       }
 
       soundEngine.Update();
-
       if (soundEngine.IsBeat())
       {
         if (lastDrawIsBeat == false)

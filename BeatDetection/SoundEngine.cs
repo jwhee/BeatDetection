@@ -193,14 +193,14 @@
         {
           while (nextBeat < pos)
           {
+            isBeat = true;
+
             beatPositions.TryDequeue(out nextBeat);
             
             if(!beatPositions.TryPeek(out nextBeat))
             {
               break;
             }
-
-            isBeat = true;
           }
         }
       }
