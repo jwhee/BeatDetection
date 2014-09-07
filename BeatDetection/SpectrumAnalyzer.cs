@@ -42,40 +42,58 @@ namespace BeatDetection
       channel.setPosition(0, FMOD.TIMEUNIT.MS);
     }
 
-    public SpectrumData AnalyzePosition(FMOD.Channel channel)
+    public Spectrum AnalyzePosition(FMOD.Channel channel)
     {
-      var data = new SpectrumData(SPECTRUM_SIZE);
-      channel.getSpectrum(data.specL, SPECTRUM_SIZE, 0, FFT_WINDOW_TYPE);
-      channel.getSpectrum(data.specR, SPECTRUM_SIZE, 1, FFT_WINDOW_TYPE);
+      var data = new Spectrum(SPECTRUM_SIZE);
+      channel.getSpectrum(data.SpectrumL, SPECTRUM_SIZE, 0, FFT_WINDOW_TYPE);
+      channel.getSpectrum(data.SpectrumR, SPECTRUM_SIZE, 1, FFT_WINDOW_TYPE);
 
       // 1) Compute Instant Energy
       var instantEnergy = 0.0f;
-      for (int i = 0; i < data.spectrumSize; ++i)
-        instantEnergy += (data.specL[i] * data.specL[i]) + (data.specR[i] * data.specR[i]);
-
+      for (int i = 0; i < data.Size; ++i)
+      {
+        instantEnergy += (data.SpectrumL[i] * data.SpectrumL[i]) + (data.SpectrumR[i] * data.SpectrumR[i]);
+      }
+        
       // 2) Compute Average Energy from Energy Buffer
       var averageEnergy = 0.0f;
       for (int i = 0; i < energyHistory.Count; ++i)
+      {
         averageEnergy += energyHistory[i];
+      }
+
       if (energyHistory.Count > 0)
+      {
         averageEnergy = averageEnergy / energyHistory.Count;
+      }
 
       // 3) Compute variance by comparing values in energyHistory and the average energy
       var variance = 0.0f;
       for (int i = 0; i < energyHistory.Count; ++i)
+      {
         variance += (energyHistory[i] - averageEnergy) * (energyHistory[i] - averageEnergy);
+      }
+        
       if (energyHistory.Count > 0)
+      {
         variance = variance / energyHistory.Count;
+      }
 
       // 4) Compute the constant value used to determine whether there's a beat or not.
-      float Constant = 0;
+      float multiplier = 0;
 
       if (variance > 200)
-        Constant = 1.0f;
+      {
+        multiplier = 1.0f;
+      }
       else if (variance < 25)
-        Constant = 1.45f;
+      {
+        multiplier = 1.45f;
+      }
       else
-        Constant = (constantRegressionValues[0] * variance) + constantRegressionValues[1];
+      {
+        multiplier = (constantRegressionValues[0] * variance) + constantRegressionValues[1];
+      }
 
       // 5) Update Energy History Buffer
       if (energyHistory.Count < historySize)
@@ -94,16 +112,16 @@ namespace BeatDetection
       }
 
       // 6) Compare instant energy with the averageEnergy times the constant value.`
-      if (instantEnergy > (Constant * averageEnergy))
-        data.isBeat = true;
+      if (instantEnergy > (multiplier * averageEnergy))
+        data.IsBeat = true;
       else
-        data.isBeat = false;
+        data.IsBeat = false;
 
-      data.beatData.instantEnergy = instantEnergy;
-      data.beatData.averageEnergy = averageEnergy;
-      data.beatData.variance = variance;
-      data.beatData.beatSensibility = Constant;
-      data.beatData.historySize = energyHistory.Count;
+      data.InstantEnergy = instantEnergy;
+      data.AverageEnergy = averageEnergy;
+      data.Variance = variance;
+      data.BeatSensibility = multiplier;
+      data.HistorySize = energyHistory.Count;
 
       return data;
     }
