@@ -187,7 +187,7 @@
         this.analyzeChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
 
         var data = analyzer.AnalyzePosition(this.analyzeChannel);
-        if (data.IsBeat && pos - lastBeatPos > 200)
+        if (data.IsBeat && pos - lastBeatPos > 300)
         {
           beatList.Add(pos);
           lastBeatPos = pos;
