@@ -99,19 +99,29 @@
 
         // Load sound into play channel
         this.Verify(fmodSystem.playSound(FMOD.CHANNELINDEX.FREE, playSound, true, ref playChannel));
-        this.Verify(playChannel.setVolume(1.0f));
+        //this.Verify(playChannel.setMute(true));
 
         // Initialize highpass filter
         this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.HIGHPASS, ref highpassFilter));
-        this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.LOWPASS, ref lowpassFilter));
+        this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.ITLOWPASS, ref lowpassFilter));
 
         FMOD.DSPConnection dummy = null;
         this.Verify(analyzeChannel.addDSP(highpassFilter, ref dummy));
         this.Verify(analyzeChannel.addDSP(lowpassFilter, ref dummy));
 
+        this.Verify(highpassFilter.setBypass(true));
+        this.Verify(lowpassFilter.setBypass(true));
+
         analyzer.Initialize(this.analyzeChannel);
       }
 
+      return this;
+    }
+
+    public SoundEngine SetAnalyzeFrequency(float low, float high)
+    {
+      this.AddLowpass(high);
+      this.AddHighpass(low);
       return this;
     }
 
@@ -130,7 +140,7 @@
 
     public SoundEngine AddLowpass(float cutoff = 5000.0f)
     {
-      this.Verify(lowpassFilter.setParameter((int)FMOD.DSP_LOWPASS.CUTOFF, cutoff));
+      this.Verify(lowpassFilter.setParameter((int)FMOD.DSP_ITLOWPASS.CUTOFF, cutoff));
       this.Verify(lowpassFilter.setBypass(false));
 
       return this;
@@ -165,16 +175,7 @@
         var data = analyzer.AnalyzePosition(this.analyzeChannel);
         if (data.IsBeat)
         {
-          if (lastUpdateIsBeat == false)
-          {
             beatPositions.Enqueue(pos);
-          }
-
-          lastUpdateIsBeat = true;
-        }
-        else
-        {
-          lastUpdateIsBeat = false;
         }
       }
     }
@@ -191,13 +192,16 @@
         uint nextBeat = 0;
         if (beatPositions.TryPeek(out nextBeat))
         {
-          while (nextBeat < pos)
+          if (nextBeat - 50 < pos)
           {
             isBeat = true;
+          }
 
+          while (nextBeat < pos)
+          {
             beatPositions.TryDequeue(out nextBeat);
-            
-            if(!beatPositions.TryPeek(out nextBeat))
+
+            if (!beatPositions.TryPeek(out nextBeat))
             {
               break;
             }

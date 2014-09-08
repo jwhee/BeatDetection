@@ -14,8 +14,8 @@ namespace BeatDetection
 
     private const int SPECTRUM_SIZE = 512;
     private const FMOD.DSP_FFT_WINDOW FFT_WINDOW_TYPE = FMOD.DSP_FFT_WINDOW.BLACKMAN;
-    //private float[] constantRegressionValues = { -0.002571428f, -100.5142857f }; // This value can be changed to get more accurate beat detection
     private float[] constantRegressionValues = { -0.002571428f, 1.5142857f };
+
     public void Initialize(FMOD.Channel channel)
     {
       float frequency = 0.0f;
