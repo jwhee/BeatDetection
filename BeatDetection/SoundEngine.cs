@@ -2,6 +2,7 @@
 {
   using System;
   using System.Collections.Concurrent;
+  using System.Collections.Generic;
   using System.IO;
   using System.Threading.Tasks;
 
@@ -161,8 +162,9 @@
       this.Verify(playChannel.setPaused(false));
     }
 
-    ConcurrentQueue<uint> beatPositions = new ConcurrentQueue<uint>();
-    bool lastUpdateIsBeat = false;
+    List<uint> beatList = new List<uint>();
+    int beatIndex = 0;
+
     public void Update()
     {
       fmodSystem.update();
@@ -175,7 +177,7 @@
         var data = analyzer.AnalyzePosition(this.analyzeChannel);
         if (data.IsBeat)
         {
-            beatPositions.Enqueue(pos);
+          beatList.Add(pos);
         }
       }
     }
@@ -187,24 +189,32 @@
       uint pos = 0;
       this.playChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
 
-      if(pos != 0 && beatPositions.Count > 0)
+      if (pos != 0 && beatIndex < beatList.Count)
       {
-        uint nextBeat = 0;
-        if (beatPositions.TryPeek(out nextBeat))
+        uint nextBeat = beatList[beatIndex];
+        uint previousBeat = 0;
+        if (beatIndex > 0)
         {
-          if (nextBeat - 50 < pos)
+          previousBeat = beatList[beatIndex - 1];
+        }
+
+        if(nextBeat - previousBeat < 120)
+        {
+          isBeat = true;
+        }
+
+        while (nextBeat < pos)
+        {
+          isBeat = true;
+          beatIndex++;
+
+          if(beatIndex < beatList.Count)
           {
-            isBeat = true;
+            nextBeat = beatList[beatIndex];
           }
-
-          while (nextBeat < pos)
+          else
           {
-            beatPositions.TryDequeue(out nextBeat);
-
-            if (!beatPositions.TryPeek(out nextBeat))
-            {
-              break;
-            }
+            break;
           }
         }
       }
