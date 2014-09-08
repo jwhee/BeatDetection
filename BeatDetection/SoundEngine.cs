@@ -21,6 +21,16 @@
 
     private SpectrumAnalyzer analyzer;
 
+    public uint Position
+    {
+      get
+      {
+        uint pos = 0;
+        playChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
+        return pos;
+      }
+    }
+
     public bool IsPlaying
     {
       get
@@ -104,7 +114,7 @@
 
         // Initialize highpass filter
         this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.HIGHPASS, ref highpassFilter));
-        this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.ITLOWPASS, ref lowpassFilter));
+        this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.LOWPASS, ref lowpassFilter));
 
         FMOD.DSPConnection dummy = null;
         this.Verify(analyzeChannel.addDSP(highpassFilter, ref dummy));
@@ -141,7 +151,7 @@
 
     public SoundEngine AddLowpass(float cutoff = 5000.0f)
     {
-      this.Verify(lowpassFilter.setParameter((int)FMOD.DSP_ITLOWPASS.CUTOFF, cutoff));
+      this.Verify(lowpassFilter.setParameter((int)FMOD.DSP_LOWPASS.CUTOFF, cutoff));
       this.Verify(lowpassFilter.setBypass(false));
 
       return this;
@@ -162,9 +172,11 @@
       this.Verify(playChannel.setPaused(false));
     }
 
-    List<uint> beatList = new List<uint>();
+    public List<uint> BeatPositions { get { return beatList; } }
+    private List<uint> beatList = new List<uint>();
     int beatIndex = 0;
 
+    uint lastBeatPos = 0;
     public void Update()
     {
       fmodSystem.update();
@@ -175,10 +187,12 @@
         this.analyzeChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
 
         var data = analyzer.AnalyzePosition(this.analyzeChannel);
-        if (data.IsBeat)
+        if (data.IsBeat && pos - lastBeatPos > 200)
         {
           beatList.Add(pos);
+          lastBeatPos = pos;
         }
+
       }
     }
 
@@ -192,16 +206,6 @@
       if (pos != 0 && beatIndex < beatList.Count)
       {
         uint nextBeat = beatList[beatIndex];
-        uint previousBeat = 0;
-        if (beatIndex > 0)
-        {
-          previousBeat = beatList[beatIndex - 1];
-        }
-
-        if(nextBeat - previousBeat < 120)
-        {
-          isBeat = true;
-        }
 
         while (nextBeat < pos)
         {

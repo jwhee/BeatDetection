@@ -41,6 +41,7 @@ namespace BeatDetection.SampleMonoGame
       base.Initialize();
     }
 
+    int ViewportWidth;
     Texture2D rect1;
     Texture2D rect2;
     /// <summary>
@@ -53,11 +54,13 @@ namespace BeatDetection.SampleMonoGame
       spriteBatch = new SpriteBatch(GraphicsDevice);
       soundEngine = new SoundEngine();
 
-      // TODO: use this.Content to load your game content here
-      rect1 = new Texture2D(graphics.GraphicsDevice, 80, 30);
-      rect2 = new Texture2D(graphics.GraphicsDevice, 80, 30);
+      ViewportWidth = GraphicsDevice.Viewport.Width;
 
-      Color[] data = new Color[80 * 30];
+      // TODO: use this.Content to load your game content here
+      rect1 = new Texture2D(graphics.GraphicsDevice, 5, 80);
+      rect2 = new Texture2D(graphics.GraphicsDevice, 5, 80);
+
+      Color[] data = new Color[5 * 80];
       for (int i = 0; i < data.Length; ++i) data[i] = Color.White;
       rect1.SetData(data);
       for (int i = 0; i < data.Length; ++i) data[i] = Color.Black;
@@ -86,9 +89,9 @@ namespace BeatDetection.SampleMonoGame
 
       if(playing == false)
       {
-        var task = soundEngine.Load(@"D:\Music\test2.mp3")
-                    .SetAnalyzeFrequency(50.0f, 150.0f)
-                    .Play(1);
+        var task = soundEngine.Load(@"D:\Music\test.mp3")
+                    .SetAnalyzeFrequency(100.0f, 175.0f)
+                    .Play(2);
 
         playing = true;
       }
@@ -129,17 +132,26 @@ namespace BeatDetection.SampleMonoGame
     {
       GraphicsDevice.Clear(Color.CornflowerBlue);
 
-      Vector2 coor = new Vector2(10, 20);
-
       spriteBatch.Begin();
-      if(drawTexture1)
+      Vector2 coor = new Vector2(ViewportWidth/2, 350);
+
+      foreach(var beatPosition in soundEngine.BeatPositions)
       {
-        spriteBatch.Draw(rect1, coor, Color.White);
+        var musicPosition = soundEngine.Position;
+
+        if (beatPosition > musicPosition
+          && beatPosition < musicPosition + 2000)
+        {
+          uint diff = (beatPosition - musicPosition) / 4;
+          var pos = new Vector2(coor.X + diff, coor.Y);
+          spriteBatch.Draw(rect1, pos, Color.White);
+
+          var pos2 = new Vector2(coor.X - diff, coor.Y);
+          spriteBatch.Draw(rect1, pos2, Color.White);
+        }
       }
-      else
-      {
-        spriteBatch.Draw(rect2, coor, Color.White);
-      }
+
+      spriteBatch.Draw(rect2, coor, Color.White);
 
       spriteBatch.End();
 
