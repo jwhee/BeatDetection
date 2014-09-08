@@ -89,8 +89,8 @@ namespace BeatDetection.SampleMonoGame
 
       if(playing == false)
       {
-        var task = soundEngine.Load(@"D:\Music\test.mp3")
-                    .SetAnalyzeFrequency(100.0f, 175.0f)
+        var task = soundEngine.Load(@"D:\Music\test2.mp3")
+                    .SetAnalyzeFrequency(100.0f, 150.0f)
                     .Play(2);
 
         playing = true;

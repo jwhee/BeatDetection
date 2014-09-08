@@ -12,7 +12,7 @@ namespace BeatDetection
     private int historySize = 0;
     private int historyIndex = 0;
 
-    private const int SPECTRUM_SIZE = 512;
+    private const int SPECTRUM_SIZE = 2048;
     private const FMOD.DSP_FFT_WINDOW FFT_WINDOW_TYPE = FMOD.DSP_FFT_WINDOW.BLACKMAN;
     private float[] constantRegressionValues = { -0.002571428f, 1.5142857f };
 
