@@ -51,7 +51,7 @@ namespace BeatDetection.SampleMonoGame
     {
       // Create a new SpriteBatch, which can be used to draw textures.
       spriteBatch = new SpriteBatch(GraphicsDevice);
-      soundEngine = new SoundEngine();
+      soundEngine = new SoundEngine().Subscribe(this.OnBeat);
 
       ViewportWidth = GraphicsDevice.Viewport.Width;
 
@@ -61,6 +61,13 @@ namespace BeatDetection.SampleMonoGame
       Color[] data = new Color[4];
       for (int i = 0; i < data.Length; ++i) data[i] = Color.White;
       rect1.SetData(data);
+    }
+
+    private uint lastBeatPos;
+    private int drawSize;
+    private void OnBeat(uint pos)
+    {
+      this.lastBeatPos = pos;
     }
 
     /// <summary>
@@ -85,7 +92,7 @@ namespace BeatDetection.SampleMonoGame
 
       if(playing == false)
       {
-        var task = soundEngine.Load(@"D:\Music\test3.mp3")
+        var task = soundEngine.Load(@"D:\Music\test.mp3")
                     .SetAnalyzeFrequency(100.0f, 150.0f)
                     .Play(2);
 
@@ -93,6 +100,22 @@ namespace BeatDetection.SampleMonoGame
       }
 
       soundEngine.Update();
+
+      var musicPosition = soundEngine.Position;
+      if ( musicPosition - 20 < lastBeatPos &&  lastBeatPos < musicPosition + 20)
+      {
+        drawSize = 500;
+      }
+
+      if (drawSize > 0)
+      {
+        drawSize = drawSize - gameTime.ElapsedGameTime.Milliseconds;
+
+        if (drawSize < 0)
+        {
+          drawSize = 0;
+        }
+      }
 
       base.Update(gameTime);
     }
@@ -108,10 +131,11 @@ namespace BeatDetection.SampleMonoGame
       spriteBatch.Begin();
       Vector2 coor = new Vector2(ViewportWidth/2, 400);
 
+      spriteBatch.Draw(rect1, coor, null, Color.White, 0.0f, new Vector2(1, 1), new Vector2(10, 0.15f * drawSize), SpriteEffects.None, 1.0f);
+
+      var musicPosition = soundEngine.Position;
       foreach(var beatPosition in soundEngine.BeatPositions)
       {
-        var musicPosition = soundEngine.Position;
-
         if (beatPosition > musicPosition
           && beatPosition < musicPosition + 2000)
         {

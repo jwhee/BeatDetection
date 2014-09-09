@@ -83,7 +83,7 @@
 
       this.analyzer = new SpectrumAnalyzer();
 
-      this.subscribers = new List<Action>();
+      this.subscribers = new List<Action<uint>>();
     }
 
     public void Dispose()
@@ -177,7 +177,7 @@
     public List<uint> BeatPositions { get { return beatList; } }
     private List<uint> beatList = new List<uint>();
     uint lastBeatPos = 0;
-    int beatIndex = 0;
+    int nextBeatIndex = 0;
     public void Update()
     {
       fmodSystem.update();
@@ -200,18 +200,18 @@
         var isBeat = false;
         var pos = this.Position;
 
-        if (pos != 0 && beatIndex < beatList.Count)
+        if (pos != 0 && nextBeatIndex < beatList.Count)
         {
-          uint nextBeat = beatList[beatIndex];
+          uint nextBeat = beatList[nextBeatIndex];
 
           while (nextBeat < pos)
           {
             isBeat = true;
-            beatIndex++;
+            nextBeatIndex++;
 
-            if (beatIndex < beatList.Count)
+            if (nextBeatIndex < beatList.Count)
             {
-              nextBeat = beatList[beatIndex];
+              nextBeat = beatList[nextBeatIndex];
             }
             else
             {
@@ -226,15 +226,15 @@
           {
             foreach (var notify in subscribers)
             {
-              notify();
+              notify(pos);
             }
           }
         }
       }
     }
 
-    private List<Action> subscribers;
-    public SoundEngine Subscribe(Action action)
+    private List<Action<uint>> subscribers;
+    public SoundEngine Subscribe(Action<uint> action)
     {
       lock (this.subscribers)
       {
@@ -247,7 +247,7 @@
       return this;
     }
 
-    public SoundEngine Unsubscribe(Action action)
+    public SoundEngine Unsubscribe(Action<uint> action)
     {
       lock (this.subscribers)
       {
