@@ -81,7 +81,9 @@
       this.Verify(FMOD.Factory.System_Create(ref fmodSystem));
       this.Verify(fmodSystem.init(NUM_MAX_CHANNELS, FMOD.INITFLAGS.NORMAL, IntPtr.Zero));
 
-      analyzer = new SpectrumAnalyzer();
+      this.analyzer = new SpectrumAnalyzer();
+
+      this.subscribers = new List<Action>();
     }
 
     public void Dispose()
@@ -218,14 +220,42 @@
           }
         }
 
-        if (isBeat && onBeat != null)
+        if (isBeat && subscribers != null)
         {
-          onBeat();
+          lock (this.subscribers)
+          {
+            foreach (var notify in subscribers)
+            {
+              notify();
+            }
+          }
         }
       }
     }
 
-    private Action onBeat = null;
+    private List<Action> subscribers;
+    public SoundEngine Subscribe(Action action)
+    {
+      lock (this.subscribers)
+      {
+        if (!this.subscribers.Contains(action))
+        {
+          this.subscribers.Add(action);
+        }
+      }
+
+      return this;
+    }
+
+    public SoundEngine Unsubscribe(Action action)
+    {
+      lock (this.subscribers)
+      {
+        this.subscribers.RemoveAll(x => x == action);
+      }
+
+      return this;
+    }
 
     public void Stop()
     {
