@@ -174,9 +174,8 @@
 
     public List<uint> BeatPositions { get { return beatList; } }
     private List<uint> beatList = new List<uint>();
-    int beatIndex = 0;
-
     uint lastBeatPos = 0;
+    int beatIndex = 0;
     public void Update()
     {
       fmodSystem.update();
@@ -192,39 +191,41 @@
           beatList.Add(pos);
           lastBeatPos = pos;
         }
-
       }
-    }
 
-    public bool IsBeat()
-    {
-      var isBeat = false;
-
-      uint pos = 0;
-      this.playChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
-
-      if (pos != 0 && beatIndex < beatList.Count)
+      if (this.IsPlaying)
       {
-        uint nextBeat = beatList[beatIndex];
+        var isBeat = false;
+        var pos = this.Position;
 
-        while (nextBeat < pos)
+        if (pos != 0 && beatIndex < beatList.Count)
         {
-          isBeat = true;
-          beatIndex++;
+          uint nextBeat = beatList[beatIndex];
 
-          if(beatIndex < beatList.Count)
+          while (nextBeat < pos)
           {
-            nextBeat = beatList[beatIndex];
-          }
-          else
-          {
-            break;
+            isBeat = true;
+            beatIndex++;
+
+            if (beatIndex < beatList.Count)
+            {
+              nextBeat = beatList[beatIndex];
+            }
+            else
+            {
+              break;
+            }
           }
         }
-      }
 
-      return isBeat;
+        if (isBeat && onBeat != null)
+        {
+          onBeat();
+        }
+      }
     }
+
+    private Action onBeat = null;
 
     public void Stop()
     {

@@ -43,7 +43,6 @@ namespace BeatDetection.SampleMonoGame
 
     int ViewportWidth;
     Texture2D rect1;
-    Texture2D rect2;
     /// <summary>
     /// LoadContent will be called once per game and is the place to load
     /// all of your content.
@@ -57,14 +56,11 @@ namespace BeatDetection.SampleMonoGame
       ViewportWidth = GraphicsDevice.Viewport.Width;
 
       // TODO: use this.Content to load your game content here
-      rect1 = new Texture2D(graphics.GraphicsDevice, 5, 80);
-      rect2 = new Texture2D(graphics.GraphicsDevice, 5, 80);
+      rect1 = new Texture2D(graphics.GraphicsDevice, 2, 2);
 
-      Color[] data = new Color[5 * 80];
+      Color[] data = new Color[4];
       for (int i = 0; i < data.Length; ++i) data[i] = Color.White;
       rect1.SetData(data);
-      for (int i = 0; i < data.Length; ++i) data[i] = Color.Black;
-      rect2.SetData(data);
     }
 
     /// <summary>
@@ -89,7 +85,7 @@ namespace BeatDetection.SampleMonoGame
 
       if(playing == false)
       {
-        var task = soundEngine.Load(@"D:\Music\test2.mp3")
+        var task = soundEngine.Load(@"D:\Music\test3.mp3")
                     .SetAnalyzeFrequency(100.0f, 150.0f)
                     .Play(2);
 
@@ -97,33 +93,10 @@ namespace BeatDetection.SampleMonoGame
       }
 
       soundEngine.Update();
-      if (soundEngine.IsBeat())
-      {
-        if (lastDrawIsBeat == false)
-        {
-          if (drawTexture1)
-          {
-            drawTexture1 = false;
-          }
-          else
-          {
-            drawTexture1 = true;
-          }
-        }
-
-        lastDrawIsBeat = true;
-      }
-      else
-      {
-        lastDrawIsBeat = false;
-      }
 
       base.Update(gameTime);
     }
 
-    Color testColor = Color.White;
-    bool lastDrawIsBeat = false;
-    bool drawTexture1 = true;
     /// <summary>
     /// This is called when the game should draw itself.
     /// </summary>
@@ -133,7 +106,7 @@ namespace BeatDetection.SampleMonoGame
       GraphicsDevice.Clear(Color.CornflowerBlue);
 
       spriteBatch.Begin();
-      Vector2 coor = new Vector2(ViewportWidth/2, 350);
+      Vector2 coor = new Vector2(ViewportWidth/2, 400);
 
       foreach(var beatPosition in soundEngine.BeatPositions)
       {
@@ -143,15 +116,27 @@ namespace BeatDetection.SampleMonoGame
           && beatPosition < musicPosition + 2000)
         {
           uint diff = (beatPosition - musicPosition) / 4;
-          var pos = new Vector2(coor.X + diff, coor.Y);
-          spriteBatch.Draw(rect1, pos, Color.White);
 
-          var pos2 = new Vector2(coor.X - diff, coor.Y);
-          spriteBatch.Draw(rect1, pos2, Color.White);
+          var color = Color.White;
+
+          var pos = new Vector2(coor.X + 5 + diff, coor.Y);
+          var scale = new Vector2(2, 20);
+          var center = new Vector2(1, 1);
+          spriteBatch.Draw(rect1, pos, null, color, 0.0f, center, scale, SpriteEffects.None, 1.0f);
+
+          var pos2 = new Vector2(coor.X - 5 - diff, coor.Y);
+          spriteBatch.Draw(rect1, pos2, null, color, 0.0f, center, scale, SpriteEffects.None, 1.0f);
         }
       }
 
-      spriteBatch.Draw(rect2, coor, Color.White);
+      var kbstate = Keyboard.GetState();
+      var size = new Vector2(10, 40);
+      if(kbstate.IsKeyDown(Keys.Space))
+      {
+        size = new Vector2(12, 42);
+      }
+
+      spriteBatch.Draw(rect1, coor, null, Color.White, 0.0f, new Vector2(1,1), size, SpriteEffects.None, 1.0f);
 
       spriteBatch.End();
 
