@@ -26,7 +26,7 @@
       get
       {
         uint pos = 0;
-        playChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
+        this.playChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
         return pos;
       }
     }
@@ -37,9 +37,9 @@
       {
         bool isPlaying = false;
 
-        if (playChannel != null)
+        if (this.playChannel != null)
         {
-          if (playChannel.isPlaying(ref isPlaying) != FMOD.RESULT.OK)
+          if (this.playChannel.isPlaying(ref isPlaying) != FMOD.RESULT.OK)
           {
             isPlaying = false;
           }
@@ -55,9 +55,9 @@
       {
         bool isPlaying = false;
 
-        if (analyzeChannel != null)
+        if (this.analyzeChannel != null)
         {
-          if (analyzeChannel.isPlaying(ref isPlaying) != FMOD.RESULT.OK)
+          if (this.analyzeChannel.isPlaying(ref isPlaying) != FMOD.RESULT.OK)
           {
             isPlaying = false;
           }
@@ -71,7 +71,7 @@
     {
       get
       {
-        return analyzeChannel;
+        return this.analyzeChannel;
       }
     }
 
@@ -90,10 +90,10 @@
     {
       this.Stop();
 
-      if(fmodSystem != null)
+      if(this.fmodSystem != null)
       {
-        fmodSystem.release();
-        fmodSystem = null;
+        this.fmodSystem.release();
+        this.fmodSystem = null;
       }
     }
 
@@ -114,7 +114,7 @@
         this.Verify(fmodSystem.playSound(FMOD.CHANNELINDEX.FREE, playSound, true, ref playChannel));
         //this.Verify(playChannel.setMute(true));
 
-        analyzer.Initialize(this.analyzeChannel);
+        this.analyzer.Initialize(this.analyzeChannel);
       }
 
       return this;
@@ -161,18 +161,18 @@
     int nextBeatIndex = 0;
     public void Update()
     {
-      fmodSystem.update();
+      this.fmodSystem.update();
 
       if (this.IsAnalyzeChannelPlaying)
       {
         uint pos = 0;
         this.analyzeChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
 
-        var data = analyzer.AnalyzePosition(this.analyzeChannel);
+        var data = this.analyzer.AnalyzePosition(this.analyzeChannel);
         if (data.IsBeat && pos - lastBeatPos > 300)
         {
-          beatList.Add(pos);
-          lastBeatPos = pos;
+          this.beatList.Add(pos);
+          this.lastBeatPos = pos;
         }
       }
 
@@ -181,18 +181,18 @@
         var isBeat = false;
         var pos = this.Position;
 
-        if (pos != 0 && nextBeatIndex < beatList.Count)
+        if (pos != 0 && this.nextBeatIndex < beatList.Count)
         {
-          uint nextBeat = beatList[nextBeatIndex];
+          uint nextBeat = this.beatList[this.nextBeatIndex];
 
           while (nextBeat < pos)
           {
             isBeat = true;
-            nextBeatIndex++;
+            this.nextBeatIndex++;
 
-            if (nextBeatIndex < beatList.Count)
+            if (this.nextBeatIndex < this.beatList.Count)
             {
-              nextBeat = beatList[nextBeatIndex];
+              nextBeat = this.beatList[this.nextBeatIndex];
             }
             else
             {
@@ -201,7 +201,7 @@
           }
         }
 
-        if (isBeat && subscribers != null)
+        if (isBeat && this.subscribers != null)
         {
           lock (this.subscribers)
           {
@@ -240,42 +240,44 @@
 
     public void Stop()
     {
-      if(analyzeChannel != null)
+      if (this.analyzeChannel != null)
       {
         try
         {
-          analyzeChannel.stop();
+          this.analyzeChannel.stop();
         }
         catch (Exception)
         {
           // Do nothing
         }
-        analyzeChannel = null;
+
+        this.analyzeChannel = null;
       }
 
-      if (playChannel != null)
+      if (this.playChannel != null)
       {
         try
         {
-          playChannel.stop();
+          this.playChannel.stop();
         }
         catch (Exception)
         {
           // Do nothing
         }
-        playChannel = null;
+
+        this.playChannel = null;
       }
 
-      if(analyzeSound != null)
+      if (this.analyzeSound != null)
       {
-        analyzeSound.release();
-        analyzeSound = null;
+        this.analyzeSound.release();
+        this.analyzeSound = null;
       }
 
       if (playSound != null)
       {
-        playSound.release();
-        playSound = null;
+        this.playSound.release();
+        this.playSound = null;
       }
     }
 

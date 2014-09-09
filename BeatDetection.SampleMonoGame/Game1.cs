@@ -94,7 +94,7 @@ namespace BeatDetection.SampleMonoGame
       {
         var task = soundEngine.Load(@"D:\Music\test.mp3")
                     .SetAnalyzeFrequency(100.0f, 150.0f)
-                    .Play(2);
+                    .Play();
 
         playing = true;
       }
