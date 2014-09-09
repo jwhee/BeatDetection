@@ -114,17 +114,6 @@
         this.Verify(fmodSystem.playSound(FMOD.CHANNELINDEX.FREE, playSound, true, ref playChannel));
         //this.Verify(playChannel.setMute(true));
 
-        // Initialize highpass filter
-        this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.HIGHPASS, ref highpassFilter));
-        this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.LOWPASS, ref lowpassFilter));
-
-        FMOD.DSPConnection dummy = null;
-        this.Verify(analyzeChannel.addDSP(highpassFilter, ref dummy));
-        this.Verify(analyzeChannel.addDSP(lowpassFilter, ref dummy));
-
-        this.Verify(highpassFilter.setBypass(true));
-        this.Verify(lowpassFilter.setBypass(true));
-
         analyzer.Initialize(this.analyzeChannel);
       }
 
@@ -138,43 +127,35 @@
       return this;
     }
 
-    public SoundEngine AddHighpass(float cutoff = 5000.0f)
+    private void AddHighpass(float cutoff = 5000.0f)
     {
+      this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.HIGHPASS, ref highpassFilter));
+      FMOD.DSPConnection dummy = null;
+      this.Verify(analyzeChannel.addDSP(highpassFilter, ref dummy));
       this.Verify(highpassFilter.setParameter((int)FMOD.DSP_HIGHPASS.CUTOFF, cutoff));
-      this.Verify(highpassFilter.setBypass(false));
-
-      return this;
     }
 
-    public void RemoveHighpass()
+    private void AddLowpass(float cutoff = 5000.0f)
     {
-      this.Verify(highpassFilter.setBypass(true));
-    }
-
-    public SoundEngine AddLowpass(float cutoff = 5000.0f)
-    {
+      this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.LOWPASS, ref lowpassFilter));
+      FMOD.DSPConnection dummy = null;
+      this.Verify(analyzeChannel.addDSP(lowpassFilter, ref dummy));
       this.Verify(lowpassFilter.setParameter((int)FMOD.DSP_LOWPASS.CUTOFF, cutoff));
-      this.Verify(lowpassFilter.setBypass(false));
-
-      return this;
-    }
-
-    public void RemoveLowpass()
-    {
-      this.Verify(lowpassFilter.setBypass(true));
     }
 
     public async Task Play(int secondsDelay = 1)
     {
-      // Play channel
+      // Start analyzing channel
       this.Verify(analyzeChannel.setPaused(false));
 
+      // Delay N seconds
       await Task.Delay(secondsDelay * 1000);
 
+      // Play channel
       this.Verify(playChannel.setPaused(false));
     }
 
-    public List<uint> BeatPositions { get { return beatList; } }
+    public List<uint> BeatPositions { get { return new List<uint>(beatList); } }
     private List<uint> beatList = new List<uint>();
     uint lastBeatPos = 0;
     int nextBeatIndex = 0;

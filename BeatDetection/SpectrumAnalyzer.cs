@@ -110,18 +110,26 @@ namespace BeatDetection
       else
       {
         if (historyIndex < historySize - 1)
+        {
           historyIndex++;
+        }
         else
+        {
           historyIndex = 0;
+        }
 
         energyHistory[historyIndex] = data.InstantEnergy;
       }
 
       // 6) Compare instant energy with the averageEnergy times the constant value.`
       if (data.InstantEnergy > (data.BeatSensibility * data.AverageEnergy))
+      {
         data.IsBeat = true;
+      }
       else
+      {
         data.IsBeat = false;
+      }
 
       data.HistorySize = energyHistory.Count;
 
