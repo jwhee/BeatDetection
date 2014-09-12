@@ -25,6 +25,9 @@
     {
       get
       {
+        if (this.playChannel == null)
+          return 0;
+
         uint pos = 0;
         this.playChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
         return pos;
@@ -101,6 +104,8 @@
     {
       if (File.Exists(path))
       {
+        beatList.Clear();
+
         // Load music into sound
         FMOD.MODE mode = FMOD.MODE.SOFTWARE | FMOD.MODE.LOOP_OFF | FMOD.MODE.ACCURATETIME;
         this.Verify(fmodSystem.createStream(path, mode, ref analyzeSound));
@@ -181,11 +186,12 @@
         var isBeat = false;
         var pos = this.Position;
 
+        // Check if current music position is a beat
         if (pos != 0 && this.nextBeatIndex < beatList.Count)
         {
           uint nextBeat = this.beatList[this.nextBeatIndex];
 
-          while (nextBeat < pos)
+          while (nextBeat < pos && pos - nextBeat < 100)
           {
             isBeat = true;
             this.nextBeatIndex++;
@@ -201,6 +207,7 @@
           }
         }
 
+        // If a beat is found, notify all subsribers
         if (isBeat && this.subscribers != null)
         {
           lock (this.subscribers)

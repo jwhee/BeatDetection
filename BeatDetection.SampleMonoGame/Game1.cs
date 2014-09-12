@@ -81,6 +81,8 @@ namespace BeatDetection.SampleMonoGame
       soundEngine.Dispose();
     }
 
+    bool hit = false;
+
     /// <summary>
     /// Allows the game to run logic such as updating the world,
     /// checking for collisions, gathering input, and playing audio.
@@ -91,31 +93,49 @@ namespace BeatDetection.SampleMonoGame
       if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
         Exit();
 
-      if(playing == false)
+      var kbstate = Keyboard.GetState();
+
+      if(playing == false && kbstate.IsKeyDown(Keys.Enter))
       {
-        var task = soundEngine.Load(@"D:\Music\test.mp3")
+        var task = soundEngine.Load(@"D:\Music\test3.mp3")
                     .SetAnalyzeFrequency(100.0f, 150.0f)
                     .Play();
 
         playing = true;
       }
 
-      soundEngine.Update();
-
-      var musicPosition = soundEngine.Position;
-      if ( musicPosition - 20 < lastBeatPos &&  lastBeatPos < musicPosition + 20)
+      if(soundEngine.IsPlaying)
       {
-        drawSize = 500;
-      }
+        soundEngine.Update();
 
-      if (drawSize > 0)
-      {
-        drawSize = drawSize - gameTime.ElapsedGameTime.Milliseconds;
-
-        if (drawSize < 0)
+        var musicPosition = soundEngine.Position;
+        if (musicPosition - 20 < lastBeatPos)
         {
-          drawSize = 0;
+          drawSize = 1000;
         }
+
+        if (drawSize > 800 && kbstate.IsKeyDown(Keys.Space))
+        {
+          hit = true;
+        }
+        else
+        {
+          hit = false;
+        }
+
+        if (drawSize > 0)
+        {
+          drawSize = drawSize - gameTime.ElapsedGameTime.Milliseconds * 2;
+
+          if (drawSize < 0)
+          {
+            drawSize = 0;
+          }
+        }
+      }
+      else
+      {
+        playing = false;
       }
 
       base.Update(gameTime);
@@ -131,8 +151,6 @@ namespace BeatDetection.SampleMonoGame
 
       spriteBatch.Begin();
       Vector2 coor = new Vector2(ViewportWidth/2, 400);
-
-      spriteBatch.Draw(rect1, coor, null, Color.White, 0.0f, new Vector2(1, 1), new Vector2(10, 0.15f * drawSize), SpriteEffects.None, 1.0f);
 
       var musicPosition = soundEngine.Position;
       foreach(var beatPosition in soundEngine.BeatPositions)
@@ -154,14 +172,16 @@ namespace BeatDetection.SampleMonoGame
         }
       }
 
-      var kbstate = Keyboard.GetState();
-      var size = new Vector2(10, 40);
-      if(kbstate.IsKeyDown(Keys.Space))
+      var barColor = Color.White;
+      if (hit)
       {
-        size = new Vector2(12, 42);
+        barColor = Color.Red;
       }
 
-      spriteBatch.Draw(rect1, coor, null, Color.White, 0.0f, new Vector2(1,1), size, SpriteEffects.None, 1.0f);
+      var size = new Vector2(10, 40);
+      spriteBatch.Draw(rect1, coor, null, barColor, 0.0f, new Vector2(1, 1), size, SpriteEffects.None, 1.0f);
+      spriteBatch.Draw(rect1, coor, null, barColor, 0.0f, new Vector2(1, 1), new Vector2(10, 0.08f * drawSize), SpriteEffects.None, 1.0f);
+
 
       spriteBatch.End();
 
