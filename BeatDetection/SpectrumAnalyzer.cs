@@ -32,23 +32,7 @@ namespace BeatDetection
       energyHistory.Clear();
     }
 
-    public void Analyze(FMOD.Channel channel)
-    {
-      FMOD.Sound sound = null;
-      channel.getCurrentSound(ref sound);
-      uint soundLength = 0;
-      sound.getLength(ref soundLength, FMOD.TIMEUNIT.MS);
-
-      for (uint pos = 0; pos < soundLength; pos = pos + 250)
-      {
-        channel.setPosition(pos, FMOD.TIMEUNIT.MS);
-        var data = this.AnalyzePosition(channel);
-      }
-
-      channel.setPosition(0, FMOD.TIMEUNIT.MS);
-    }
-
-    public Spectrum AnalyzePosition(FMOD.Channel channel)
+    public Spectrum Analyze(FMOD.Channel channel)
     {
       var data = new Spectrum(SPECTRUM_SIZE);
       channel.getSpectrum(data.SpectrumL, SPECTRUM_SIZE, 0, FFT_WINDOW_TYPE);

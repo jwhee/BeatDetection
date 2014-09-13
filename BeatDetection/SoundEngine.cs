@@ -226,7 +226,7 @@
         uint pos = 0;
         this.analyzeChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
 
-        var data = this.analyzer.AnalyzePosition(this.analyzeChannel);
+        var data = this.analyzer.Analyze(this.analyzeChannel);
         if (data.IsBeat && pos - this.lastBeatPos > 300)
         {
           this.beatList.Add(pos);
