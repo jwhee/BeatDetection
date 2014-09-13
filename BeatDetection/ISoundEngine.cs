@@ -23,7 +23,8 @@
     /// <summary>
     /// The update function. This should be called every game update frame
     /// </summary>
-    void Update();
+    /// <param name="elaspedMilliseconds">elapsed time in milliseconds</param>
+    void Update(int elaspedMilliseconds);
 
     /// <summary>
     /// Load music into sound engine
@@ -33,7 +34,20 @@
     ISoundEngine LoadMusic(string path);
 
     /// <summary>
-    /// 
+    /// Queue music to be played given a delay
+    /// </summary>
+    /// <param name="secondsDelay">delay in seconds before playing</param>
+    /// <returns>self</returns>
+    ISoundEngine PlayMusic(uint secondsDelay = 1);
+
+    /// <summary>
+    /// Stop music
+    /// </summary>
+    /// <returns>self</returns>
+    ISoundEngine StopMusic();
+
+    /// <summary>
+    /// Set beat detection cutoff frequencies
     /// </summary>
     /// <param name="low">low cutoff frequency</param>
     /// <param name="high">high cutoff frequency</param>
@@ -41,17 +55,10 @@
     ISoundEngine SetBeatDetectionFrequency(float low, float high);
 
     /// <summary>
-    /// Queue music to be played given a delay
-    /// </summary>
-    /// <param name="secondsDelay">delay in seconds before playing</param>
-    /// <returns>self</returns>
-    ISoundEngine PlayMusic(int secondsDelay = 1);
-
-    /// <summary>
-    /// Stop music
+    /// Start beat detection
     /// </summary>
     /// <returns>self</returns>
-    ISoundEngine StopMusic();
+    ISoundEngine StartBeatDetection();
 
     /// <summary>
     /// Register a callback whenever a beat is detected

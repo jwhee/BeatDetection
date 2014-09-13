@@ -52,6 +52,14 @@
       }
     }
 
+    public List<uint> BeatPositions 
+    { 
+      get 
+      { 
+        return new List<uint>(this.beatList);
+      }
+    }
+
     private bool IsAnalyzeChannelPlaying
     {
       get
@@ -70,14 +78,6 @@
       }
     }
 
-    public FMOD.Channel AnalyzeChannel
-    {
-      get
-      {
-        return this.analyzeChannel;
-      }
-    }
-
     public SoundEngine()
     {
       // Initialize fmod system
@@ -91,6 +91,8 @@
 
     public void Dispose()
     {
+      this.tokenSource.Cancel();
+
       this.StopMusic();
 
       if(this.fmodSystem != null)
@@ -125,66 +127,123 @@
       return this;
     }
 
+    private int millisecondsDelay = 0;
+    public ISoundEngine PlayMusic(uint secondsDelay = 1)
+    {
+      this.millisecondsDelay = (int)secondsDelay * 1000;
+      return this;
+    }
+
+    public ISoundEngine StopMusic()
+    {
+      if (this.analyzeChannel != null)
+      {
+        try
+        {
+          this.analyzeChannel.stop();
+        }
+        catch (Exception)
+        {
+          // Do nothing
+        }
+
+        this.analyzeChannel = null;
+      }
+
+      if (this.playChannel != null)
+      {
+        try
+        {
+          this.playChannel.stop();
+        }
+        catch (Exception)
+        {
+          // Do nothing
+        }
+
+        this.playChannel = null;
+      }
+
+      if (this.analyzeSound != null)
+      {
+        this.analyzeSound.release();
+        this.analyzeSound = null;
+      }
+
+      if (this.playSound != null)
+      {
+        this.playSound.release();
+        this.playSound = null;
+      }
+
+      return this;
+    }
+
     public ISoundEngine SetBeatDetectionFrequency(float low, float high)
     {
-      this.AddLowpass(high);
-      this.AddHighpass(low);
-      return this;
-    }
-
-    private void AddHighpass(float cutoff = 5000.0f)
-    {
-      this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.HIGHPASS, ref highpassFilter));
       FMOD.DSPConnection dummy = null;
-      this.Verify(analyzeChannel.addDSP(highpassFilter, ref dummy));
-      this.Verify(highpassFilter.setParameter((int)FMOD.DSP_HIGHPASS.CUTOFF, cutoff));
-    }
 
-    private void AddLowpass(float cutoff = 5000.0f)
-    {
       this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.LOWPASS, ref lowpassFilter));
-      FMOD.DSPConnection dummy = null;
       this.Verify(analyzeChannel.addDSP(lowpassFilter, ref dummy));
-      this.Verify(lowpassFilter.setParameter((int)FMOD.DSP_LOWPASS.CUTOFF, cutoff));
-    }
+      this.Verify(lowpassFilter.setParameter((int)FMOD.DSP_LOWPASS.CUTOFF, high));
 
-    public ISoundEngine PlayMusic(int secondsDelay = 1)
-    {
-      // Start analyzing channel
-      this.Verify(analyzeChannel.setPaused(false));
-
-      Task.Run(() =>
-        {
-          // Delay N seconds
-          Thread.Sleep(secondsDelay * 1000);
-
-          // Play channel
-          this.Verify(playChannel.setPaused(false));
-        });
-
+      this.Verify(fmodSystem.createDSPByType(FMOD.DSP_TYPE.HIGHPASS, ref highpassFilter));
+      this.Verify(analyzeChannel.addDSP(highpassFilter, ref dummy));
+      this.Verify(highpassFilter.setParameter((int)FMOD.DSP_HIGHPASS.CUTOFF, low));
 
       return this;
     }
 
-    public List<uint> BeatPositions { get { return new List<uint>(beatList); } }
-    private List<uint> beatList = new List<uint>();
-    uint lastBeatPos = 0;
-    int nextBeatIndex = 0;
-    public void Update()
+    private CancellationTokenSource tokenSource;
+    public ISoundEngine StartBeatDetection()
     {
-      this.fmodSystem.update();
-
-      if (this.IsAnalyzeChannelPlaying)
+      // Cancel existing beat detection task
+      if (this.tokenSource != null)
       {
+        this.tokenSource.Cancel();
+      }
+
+      // Start a new beat detection task
+      this.tokenSource = new CancellationTokenSource();
+      var token = this.tokenSource.Token;
+      Task.Run(() => this.runBeatDetection(token), token);
+
+      return this;
+    }
+
+    private List<uint> beatList = new List<uint>();
+    private uint lastBeatPos = 0;
+    private void runBeatDetection(CancellationToken ct)
+    {
+      this.analyzeChannel.setPaused(false);
+      while(this.IsAnalyzeChannelPlaying)
+      {
+        if (ct.IsCancellationRequested)
+        {
+          break;
+        }
+
         uint pos = 0;
         this.analyzeChannel.getPosition(ref pos, FMOD.TIMEUNIT.MS);
 
         var data = this.analyzer.AnalyzePosition(this.analyzeChannel);
-        if (data.IsBeat && pos - lastBeatPos > 300)
+        if (data.IsBeat && pos - this.lastBeatPos > 300)
         {
           this.beatList.Add(pos);
           this.lastBeatPos = pos;
         }
+      }
+    }
+
+    private int nextBeatIndex = 0;
+    public void Update(int elaspedMilliseconds)
+    {
+      this.fmodSystem.update();
+
+      millisecondsDelay -= elaspedMilliseconds;
+      if (millisecondsDelay <= 0 && this.playChannel != null)
+      {
+        this.playChannel.setPaused(false);
       }
 
       if (this.IsMusicPlaying)
@@ -193,7 +252,7 @@
         var pos = this.MusicPosition;
 
         // Check if current music position is a beat
-        if (pos != 0 && this.nextBeatIndex < beatList.Count)
+        if (pos != 0 && this.nextBeatIndex < this.beatList.Count)
         {
           uint nextBeat = this.beatList[this.nextBeatIndex];
 
@@ -246,51 +305,6 @@
       lock (this.subscribers)
       {
         this.subscribers.RemoveAll(x => x == onBeatCallback);
-      }
-
-      return this;
-    }
-
-    public ISoundEngine StopMusic()
-    {
-      if (this.analyzeChannel != null)
-      {
-        try
-        {
-          this.analyzeChannel.stop();
-        }
-        catch (Exception)
-        {
-          // Do nothing
-        }
-
-        this.analyzeChannel = null;
-      }
-
-      if (this.playChannel != null)
-      {
-        try
-        {
-          this.playChannel.stop();
-        }
-        catch (Exception)
-        {
-          // Do nothing
-        }
-
-        this.playChannel = null;
-      }
-
-      if (this.analyzeSound != null)
-      {
-        this.analyzeSound.release();
-        this.analyzeSound = null;
-      }
-
-      if (playSound != null)
-      {
-        this.playSound.release();
-        this.playSound = null;
       }
 
       return this;
