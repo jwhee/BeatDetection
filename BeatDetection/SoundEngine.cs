@@ -1,12 +1,12 @@
 ﻿namespace BeatDetection
 {
   using System;
-  using System.Collections.Concurrent;
   using System.Collections.Generic;
   using System.IO;
+  using System.Threading;
   using System.Threading.Tasks;
 
-  public class SoundEngine : IDisposable
+  public class SoundEngine : ISoundEngine
   {
     private const int NUM_MAX_CHANNELS = 8;
 
@@ -21,7 +21,7 @@
 
     private SpectrumAnalyzer analyzer;
 
-    public uint Position
+    public uint MusicPosition
     {
       get
       {
@@ -34,7 +34,7 @@
       }
     }
 
-    public bool IsPlaying
+    public bool IsMusicPlaying
     {
       get
       {
@@ -52,7 +52,7 @@
       }
     }
 
-    public bool IsAnalyzeChannelPlaying
+    private bool IsAnalyzeChannelPlaying
     {
       get
       {
@@ -91,7 +91,7 @@
 
     public void Dispose()
     {
-      this.Stop();
+      this.StopMusic();
 
       if(this.fmodSystem != null)
       {
@@ -100,7 +100,7 @@
       }
     }
 
-    public SoundEngine Load(string path)
+    public ISoundEngine LoadMusic(string path)
     {
       if (File.Exists(path))
       {
@@ -125,7 +125,7 @@
       return this;
     }
 
-    public SoundEngine SetAnalyzeFrequency(float low, float high)
+    public ISoundEngine SetBeatDetectionFrequency(float low, float high)
     {
       this.AddLowpass(high);
       this.AddHighpass(low);
@@ -148,16 +148,22 @@
       this.Verify(lowpassFilter.setParameter((int)FMOD.DSP_LOWPASS.CUTOFF, cutoff));
     }
 
-    public async Task Play(int secondsDelay = 1)
+    public ISoundEngine PlayMusic(int secondsDelay = 1)
     {
       // Start analyzing channel
       this.Verify(analyzeChannel.setPaused(false));
 
-      // Delay N seconds
-      await Task.Delay(secondsDelay * 1000);
+      Task.Run(() =>
+        {
+          // Delay N seconds
+          Thread.Sleep(secondsDelay * 1000);
 
-      // Play channel
-      this.Verify(playChannel.setPaused(false));
+          // Play channel
+          this.Verify(playChannel.setPaused(false));
+        });
+
+
+      return this;
     }
 
     public List<uint> BeatPositions { get { return new List<uint>(beatList); } }
@@ -181,10 +187,10 @@
         }
       }
 
-      if (this.IsPlaying)
+      if (this.IsMusicPlaying)
       {
         var isBeat = false;
-        var pos = this.Position;
+        var pos = this.MusicPosition;
 
         // Check if current music position is a beat
         if (pos != 0 && this.nextBeatIndex < beatList.Count)
@@ -222,30 +228,30 @@
     }
 
     private List<Action<uint>> subscribers;
-    public SoundEngine Subscribe(Action<uint> action)
+    public ISoundEngine RegisterOnBeatCallback(Action<uint> onBeatCallback)
     {
       lock (this.subscribers)
       {
-        if (!this.subscribers.Contains(action))
+        if (!this.subscribers.Contains(onBeatCallback))
         {
-          this.subscribers.Add(action);
+          this.subscribers.Add(onBeatCallback);
         }
       }
 
       return this;
     }
 
-    public SoundEngine Unsubscribe(Action<uint> action)
+    public ISoundEngine UnregisterOnBeatCallback(Action<uint> onBeatCallback)
     {
       lock (this.subscribers)
       {
-        this.subscribers.RemoveAll(x => x == action);
+        this.subscribers.RemoveAll(x => x == onBeatCallback);
       }
 
       return this;
     }
 
-    public void Stop()
+    public ISoundEngine StopMusic()
     {
       if (this.analyzeChannel != null)
       {
@@ -286,6 +292,8 @@
         this.playSound.release();
         this.playSound = null;
       }
+
+      return this;
     }
 
     private void Verify(FMOD.RESULT result)

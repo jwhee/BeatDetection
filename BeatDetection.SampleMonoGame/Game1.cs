@@ -18,7 +18,7 @@ namespace BeatDetection.SampleMonoGame
   {
     GraphicsDeviceManager graphics;
     SpriteBatch spriteBatch;
-    SoundEngine soundEngine;
+    ISoundEngine soundEngine;
     bool playing = false;
 
     public Game1()
@@ -52,7 +52,7 @@ namespace BeatDetection.SampleMonoGame
     {
       // Create a new SpriteBatch, which can be used to draw textures.
       spriteBatch = new SpriteBatch(GraphicsDevice);
-      soundEngine = new SoundEngine().Subscribe(this.OnBeat);
+      soundEngine = new SoundEngine().RegisterOnBeatCallback(this.OnBeat);
 
       ViewportWidth = GraphicsDevice.Viewport.Width;
 
@@ -97,18 +97,18 @@ namespace BeatDetection.SampleMonoGame
 
       if(playing == false && kbstate.IsKeyDown(Keys.Enter))
       {
-        var task = soundEngine.Load(@"D:\Music\test3.mp3")
-                    .SetAnalyzeFrequency(100.0f, 150.0f)
-                    .Play();
+        var task = soundEngine.LoadMusic(@"D:\Music\test3.mp3")
+                    .SetBeatDetectionFrequency(100.0f, 150.0f)
+                    .PlayMusic();
 
         playing = true;
       }
 
-      if(soundEngine.IsPlaying)
+      if(soundEngine.IsMusicPlaying)
       {
         soundEngine.Update();
 
-        var musicPosition = soundEngine.Position;
+        var musicPosition = soundEngine.MusicPosition;
         if (musicPosition - 20 < lastBeatPos)
         {
           drawSize = 1000;
@@ -152,7 +152,7 @@ namespace BeatDetection.SampleMonoGame
       spriteBatch.Begin();
       Vector2 coor = new Vector2(ViewportWidth/2, 400);
 
-      var musicPosition = soundEngine.Position;
+      var musicPosition = soundEngine.MusicPosition;
       foreach(var beatPosition in soundEngine.BeatPositions)
       {
         if (beatPosition > musicPosition

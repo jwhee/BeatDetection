@@ -12,7 +12,7 @@ namespace BeatDetection.Test
     {
       using (var soundEngine = new SoundEngine())
       {
-        soundEngine.Load(@"D:\Music\test.mp3");
+        soundEngine.LoadMusic(@"D:\Music\test.mp3");
 
         var analyzer = new SpectrumAnalyzer();
         analyzer.Analyze(soundEngine.AnalyzeChannel);
@@ -24,10 +24,10 @@ namespace BeatDetection.Test
     {
       using (var soundEngine = new SoundEngine())
       {
-        soundEngine.Load(@"D:\Music\test.mp3")
-          .Play();
+        soundEngine.LoadMusic(@"D:\Music\test.mp3")
+          .PlayMusic();
 
-        while (soundEngine.IsPlaying) { }
+        while (soundEngine.IsMusicPlaying) { }
       }
     }
   }
