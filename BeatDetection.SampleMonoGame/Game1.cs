@@ -47,7 +47,7 @@
       spriteBatch = new SpriteBatch(GraphicsDevice);
       soundEngine = new SoundEngine().RegisterOnBeatCallback(this.OnBeat);
       Texture2DManager.Instance.Initialize(this.GraphicsDevice)
-        .Load("test", @"D:\Music\test.jpg")
+        //.Load("test", @"D:\Music\test.jpg")
         .CreateSquare("square");
 
       InputManager.Instance.Bind("start", Keys.Space)
@@ -146,7 +146,7 @@
       spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
       // Draw loaded texture
-      spriteBatch.Draw(Texture2DManager.Instance["test"], new Vector2(), Color.White);
+      //spriteBatch.Draw(Texture2DManager.Instance["test"], new Vector2(), Color.White);
 
       Vector2 coor = new Vector2(viewportWidth/2, 400);
       var square = Texture2DManager.Instance["square"];

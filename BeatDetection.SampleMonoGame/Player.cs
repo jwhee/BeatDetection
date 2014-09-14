@@ -7,7 +7,7 @@
   public class Player
   {
     private Transform transform;
-    private KeyboardInputMover mover;
+    private Mover mover;
     public Player()
     {
       this.transform = new Transform() 
