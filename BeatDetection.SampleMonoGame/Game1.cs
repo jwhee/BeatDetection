@@ -19,7 +19,6 @@ namespace BeatDetection.SampleMonoGame
     GraphicsDeviceManager graphics;
     SpriteBatch spriteBatch;
     ISoundEngine soundEngine;
-    bool playing = false;
 
     public Game1()
       : base()
@@ -42,8 +41,7 @@ namespace BeatDetection.SampleMonoGame
       base.Initialize();
     }
 
-    int ViewportWidth;
-    Texture2D rect1;
+    private int viewportWidth;
     /// <summary>
     /// LoadContent will be called once per game and is the place to load
     /// all of your content.
@@ -53,15 +51,11 @@ namespace BeatDetection.SampleMonoGame
       // Create a new SpriteBatch, which can be used to draw textures.
       spriteBatch = new SpriteBatch(GraphicsDevice);
       soundEngine = new SoundEngine().RegisterOnBeatCallback(this.OnBeat);
+      Texture2DManager.Instance.Initialize(this.GraphicsDevice)
+        .Load("test", @"D:\Music\test.jpg")
+        .CreateSquare("square");
 
-      ViewportWidth = GraphicsDevice.Viewport.Width;
-
-      // TODO: use this.Content to load your game content here
-      rect1 = new Texture2D(graphics.GraphicsDevice, 2, 2);
-
-      Color[] data = new Color[4];
-      for (int i = 0; i < data.Length; ++i) data[i] = Color.White;
-      rect1.SetData(data);
+      viewportWidth = GraphicsDevice.Viewport.Width;
     }
 
     private uint lastBeatPos;
@@ -82,7 +76,7 @@ namespace BeatDetection.SampleMonoGame
     }
 
     bool hit = false;
-
+    bool playing = false;
     /// <summary>
     /// Allows the game to run logic such as updating the world,
     /// checking for collisions, gathering input, and playing audio.
@@ -97,10 +91,10 @@ namespace BeatDetection.SampleMonoGame
       var elapsed = gameTime.ElapsedGameTime.Milliseconds;
       if(playing == false && kbstate.IsKeyDown(Keys.Enter))
       {
-        var task = soundEngine.LoadMusic(@"D:\Music\test3.mp3")
+        var task = soundEngine.LoadMusic(@"D:\Music\test.mp3")
                     .SetBeatDetectionFrequency(100.0f, 150.0f)
                     .StartBeatDetection()
-                    .PlayMusic(5);
+                    .PlayMusic(3);
 
         playing = true;
       }
@@ -115,7 +109,7 @@ namespace BeatDetection.SampleMonoGame
           drawSize = 1000;
         }
 
-        if (drawSize > 800 && kbstate.IsKeyDown(Keys.Space))
+        if (drawSize > 600 && kbstate.IsKeyDown(Keys.Space))
         {
           hit = true;
         }
@@ -151,8 +145,12 @@ namespace BeatDetection.SampleMonoGame
       GraphicsDevice.Clear(Color.CornflowerBlue);
 
       spriteBatch.Begin();
-      Vector2 coor = new Vector2(ViewportWidth/2, 400);
 
+      // Draw loaded texture
+      spriteBatch.Draw(Texture2DManager.Instance["test"], new Vector2(), Color.White);
+
+      Vector2 coor = new Vector2(viewportWidth/2, 400);
+      var square = Texture2DManager.Instance["square"];
       var musicPosition = soundEngine.MusicPosition;
       foreach(var beatPosition in soundEngine.BeatPositions)
       {
@@ -166,10 +164,10 @@ namespace BeatDetection.SampleMonoGame
           var pos = new Vector2(coor.X + 5 + diff, coor.Y);
           var scale = new Vector2(2, 20);
           var center = new Vector2(1, 1);
-          spriteBatch.Draw(rect1, pos, null, color, 0.0f, center, scale, SpriteEffects.None, 1.0f);
+          spriteBatch.Draw(square, pos, null, color, 0.0f, center, scale, SpriteEffects.None, 1.0f);
 
           var pos2 = new Vector2(coor.X - 5 - diff, coor.Y);
-          spriteBatch.Draw(rect1, pos2, null, color, 0.0f, center, scale, SpriteEffects.None, 1.0f);
+          spriteBatch.Draw(square, pos2, null, color, 0.0f, center, scale, SpriteEffects.None, 1.0f);
         }
       }
 
@@ -180,9 +178,8 @@ namespace BeatDetection.SampleMonoGame
       }
 
       var size = new Vector2(10, 40);
-      spriteBatch.Draw(rect1, coor, null, barColor, 0.0f, new Vector2(1, 1), size, SpriteEffects.None, 1.0f);
-      spriteBatch.Draw(rect1, coor, null, barColor, 0.0f, new Vector2(1, 1), new Vector2(10, 0.08f * drawSize), SpriteEffects.None, 1.0f);
-
+      spriteBatch.Draw(square, coor, null, barColor, 0.0f, new Vector2(1, 1), size, SpriteEffects.None, 1.0f);
+      spriteBatch.Draw(square, coor, null, barColor, 0.0f, new Vector2(1, 1), new Vector2(10, 0.08f * drawSize), SpriteEffects.None, 1.0f);
 
       spriteBatch.End();
 
