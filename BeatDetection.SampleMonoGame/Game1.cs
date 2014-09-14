@@ -52,7 +52,7 @@ namespace BeatDetection.SampleMonoGame
       spriteBatch = new SpriteBatch(GraphicsDevice);
       soundEngine = new SoundEngine().RegisterOnBeatCallback(this.OnBeat);
       Texture2DManager.Instance.Initialize(this.GraphicsDevice)
-        .Load("test", @"D:\Music\test.jpg")
+        .Load("test", @"D:\Music\test2.png")
         .CreateSquare("square");
 
       viewportWidth = GraphicsDevice.Viewport.Width;
