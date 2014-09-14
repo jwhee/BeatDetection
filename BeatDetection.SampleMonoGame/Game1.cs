@@ -52,7 +52,7 @@ namespace BeatDetection.SampleMonoGame
       spriteBatch = new SpriteBatch(GraphicsDevice);
       soundEngine = new SoundEngine().RegisterOnBeatCallback(this.OnBeat);
       Texture2DManager.Instance.Initialize(this.GraphicsDevice)
-        .Load("test", @"D:\Music\test2.png")
+        .Load("test", @"D:\Music\test.jpg")
         .CreateSquare("square");
 
       viewportWidth = GraphicsDevice.Viewport.Width;
@@ -144,7 +144,7 @@ namespace BeatDetection.SampleMonoGame
     {
       GraphicsDevice.Clear(Color.CornflowerBlue);
 
-      spriteBatch.Begin();
+      spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
       // Draw loaded texture
       spriteBatch.Draw(Texture2DManager.Instance["test"], new Vector2(), Color.White);
@@ -159,7 +159,7 @@ namespace BeatDetection.SampleMonoGame
         {
           uint diff = (beatPosition - musicPosition) / 4;
 
-          var color = Color.White;
+          var color = Color.White * 0.5f;
 
           var pos = new Vector2(coor.X + 5 + diff, coor.Y);
           var scale = new Vector2(2, 20);
@@ -171,7 +171,7 @@ namespace BeatDetection.SampleMonoGame
         }
       }
 
-      var barColor = Color.White;
+      var barColor = Color.White * 0.5f;
       if (hit)
       {
         barColor = Color.Red;
