@@ -2,13 +2,7 @@
 {
   public abstract class Mover
   {
-    protected Transform transform;
-
-    public Mover(Transform transform)
-    {
-      this.transform = transform;
-    }
-
+    public Transform Transform { get; set; }
     public abstract void Update(int elapsedMilliseconds);
   }
 }

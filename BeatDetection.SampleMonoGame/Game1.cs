@@ -35,7 +35,7 @@
       base.Initialize();
     }
 
-    Player player;
+    GameObject player;
     private int viewportWidth;
     /// <summary>
     /// LoadContent will be called once per game and is the place to load
@@ -57,7 +57,9 @@
         .Bind("left", Keys.A)
         .Bind("right", Keys.D);
 
-      player = new Player();
+      player = new GameObject(new Transform() { Size = 10.0f })
+        .SetMover(new KeyboardInputMover() { Velocity = 0.5f })
+        .SetActor(new PlayerActor());
 
       viewportWidth = GraphicsDevice.Viewport.Width;
     }

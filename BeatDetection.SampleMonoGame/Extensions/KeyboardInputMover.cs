@@ -40,8 +40,7 @@
       }
     }
 
-    public KeyboardInputMover(Transform transform)
-      : base(transform)
+    public KeyboardInputMover()
     {
       this.UpKey = "up";
       this.DownKey = "down";
@@ -56,26 +55,26 @@
        && InputManager.Instance.IsKeyUp(this.DownKey))
       {
         // up
-        this.transform.Y -= elapsedMilliseconds * this.UpVelocity;
+        this.Transform.Y -= elapsedMilliseconds * this.UpVelocity;
       }
       else if (InputManager.Instance.IsKeyDown(this.DownKey)
             && InputManager.Instance.IsKeyUp(this.UpKey))
       {
         // down
-        this.transform.Y += elapsedMilliseconds * this.DownVelocity;
+        this.Transform.Y += elapsedMilliseconds * this.DownVelocity;
       }
 
       if (InputManager.Instance.IsKeyDown(this.LeftKey)
        && InputManager.Instance.IsKeyUp(this.RightKey))
       {
         // left
-        this.transform.X -= elapsedMilliseconds * this.LeftVelocity;
+        this.Transform.X -= elapsedMilliseconds * this.LeftVelocity;
       }
       else if (InputManager.Instance.IsKeyDown(this.RightKey)
             && InputManager.Instance.IsKeyUp(this.LeftKey))
       {
         // right
-        this.transform.X += elapsedMilliseconds * this.RightVelocity;
+        this.Transform.X += elapsedMilliseconds * this.RightVelocity;
       }
     }
   }

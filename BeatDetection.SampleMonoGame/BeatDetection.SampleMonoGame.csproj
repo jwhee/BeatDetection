@@ -39,12 +39,14 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Extensions\Actor.cs" />
     <Compile Include="Extensions\KeyboardInputMover.cs" />
     <Compile Include="Extensions\Mover.cs" />
     <Compile Include="Extensions\Transform.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Extensions\InputManager.cs" />
-    <Compile Include="Player.cs" />
+    <Compile Include="PlayerActor.cs" />
+    <Compile Include="Extensions\GameObject.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\Texture2DManager.cs" />
