@@ -89,7 +89,7 @@ namespace BeatDetection.SampleMonoGame
 
       var kbstate = Keyboard.GetState();
       var elapsed = gameTime.ElapsedGameTime.Milliseconds;
-      if(playing == false && kbstate.IsKeyDown(Keys.Enter))
+      if(playing == false && kbstate.IsKeyDown(Keys.Space))
       {
         var task = soundEngine.LoadMusic(@"D:\Music\test.mp3")
                     .SetBeatDetectionFrequency(100.0f, 150.0f)
