@@ -91,7 +91,10 @@
 
     public void Dispose()
     {
-      this.tokenSource.Cancel();
+      if (this.tokenSource != null)
+      {
+        this.tokenSource.Cancel();
+      }
 
       this.StopMusic();
 
