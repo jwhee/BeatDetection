@@ -1,16 +1,10 @@
-﻿#region Using Statements
-using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Storage;
-using Microsoft.Xna.Framework.GamerServices;
-#endregion
-
-namespace BeatDetection.SampleMonoGame
+﻿namespace BeatDetection.SampleMonoGame
 {
+  using Microsoft.Xna.Framework;
+  using Microsoft.Xna.Framework.Extensions;
+  using Microsoft.Xna.Framework.Graphics;
+  using Microsoft.Xna.Framework.Input;
+
   /// <summary>
   /// This is the main type for your game
   /// </summary>
@@ -76,7 +70,6 @@ namespace BeatDetection.SampleMonoGame
     }
 
     bool hit = false;
-    bool playing = false;
     /// <summary>
     /// Allows the game to run logic such as updating the world,
     /// checking for collisions, gathering input, and playing audio.
@@ -87,16 +80,16 @@ namespace BeatDetection.SampleMonoGame
       if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
         Exit();
 
-      var kbstate = Keyboard.GetState();
+      InputManager.Instance.Update();
+
       var elapsed = gameTime.ElapsedGameTime.Milliseconds;
-      if(playing == false && kbstate.IsKeyDown(Keys.Space))
+      if (!soundEngine.IsMusicPlaying && InputManager.Instance.IsKeyPressed(Keys.Space))
       {
         var task = soundEngine.LoadMusic(@"D:\Music\test.mp3")
                     .SetBeatDetectionFrequency(100.0f, 150.0f)
                     .StartBeatDetection()
                     .PlayMusic(3);
 
-        playing = true;
       }
 
       soundEngine.Update(elapsed);
@@ -109,7 +102,7 @@ namespace BeatDetection.SampleMonoGame
           drawSize = 1000;
         }
 
-        if (drawSize > 600 && kbstate.IsKeyDown(Keys.Space))
+        if (drawSize > 600 && InputManager.Instance.IsKeyDown(Keys.Space))
         {
           hit = true;
         }
@@ -127,10 +120,6 @@ namespace BeatDetection.SampleMonoGame
             drawSize = 0;
           }
         }
-      }
-      else
-      {
-        playing = false;
       }
 
       base.Update(gameTime);

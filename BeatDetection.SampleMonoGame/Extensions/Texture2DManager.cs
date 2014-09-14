@@ -1,10 +1,9 @@
-﻿namespace BeatDetection.SampleMonoGame
+﻿namespace Microsoft.Xna.Framework.Extensions
 {
   using System;
   using System.Collections.Generic;
   using System.IO;
 
-  using Microsoft.Xna.Framework;
   using Microsoft.Xna.Framework.Graphics;
   
   public class Texture2DManager

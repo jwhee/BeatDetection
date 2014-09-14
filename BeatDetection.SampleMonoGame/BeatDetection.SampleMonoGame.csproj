@@ -40,9 +40,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Game1.cs" />
+    <Compile Include="Extensions\InputManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Texture2DManager.cs" />
+    <Compile Include="Extensions\Texture2DManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
