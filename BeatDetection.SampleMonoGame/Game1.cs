@@ -35,6 +35,7 @@
       base.Initialize();
     }
 
+    Player player;
     private int viewportWidth;
     /// <summary>
     /// LoadContent will be called once per game and is the place to load
@@ -55,6 +56,8 @@
         .Bind("down", Keys.S)
         .Bind("left", Keys.A)
         .Bind("right", Keys.D);
+
+      player = new Player();
 
       viewportWidth = GraphicsDevice.Viewport.Width;
     }
@@ -99,6 +102,7 @@
       }
 
       soundEngine.Update(elapsed);
+      player.Update(elapsed);
 
       if(soundEngine.IsMusicPlaying)
       {
@@ -175,6 +179,9 @@
       var size = new Vector2(10, 40);
       spriteBatch.Draw(square, coor, null, barColor, 0.0f, new Vector2(1, 1), size, SpriteEffects.None, 1.0f);
       spriteBatch.Draw(square, coor, null, barColor, 0.0f, new Vector2(1, 1), new Vector2(10, 0.08f * drawSize), SpriteEffects.None, 1.0f);
+
+      // Draw Player
+      player.Draw(spriteBatch);
 
       spriteBatch.End();
 

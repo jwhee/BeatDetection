@@ -9,6 +9,6 @@
       this.transform = transform;
     }
 
-    public abstract void Update(GameTime gametime);
+    public abstract void Update(int elapsedMilliseconds);
   }
 }

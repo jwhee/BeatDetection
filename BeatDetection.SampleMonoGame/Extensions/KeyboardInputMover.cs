@@ -50,34 +50,32 @@
       this.Velocity = 1.0f;
     }
 
-    public override void Update(GameTime gametime)
+    public override void Update(int elapsedMilliseconds)
     {
-      var elapsed = gametime.ElapsedGameTime.Milliseconds;
-
       if (InputManager.Instance.IsKeyDown(this.UpKey)
        && InputManager.Instance.IsKeyUp(this.DownKey))
       {
         // up
-        this.transform.Y -= elapsed * this.UpVelocity;
+        this.transform.Y -= elapsedMilliseconds * this.UpVelocity;
       }
       else if (InputManager.Instance.IsKeyDown(this.DownKey)
             && InputManager.Instance.IsKeyUp(this.UpKey))
       {
         // down
-        this.transform.Y += elapsed * this.DownVelocity;
+        this.transform.Y += elapsedMilliseconds * this.DownVelocity;
       }
 
       if (InputManager.Instance.IsKeyDown(this.LeftKey)
        && InputManager.Instance.IsKeyUp(this.RightKey))
       {
         // left
-        this.transform.X -= elapsed * this.LeftVelocity;
+        this.transform.X -= elapsedMilliseconds * this.LeftVelocity;
       }
       else if (InputManager.Instance.IsKeyDown(this.RightKey)
             && InputManager.Instance.IsKeyUp(this.LeftKey))
       {
         // right
-        this.transform.X += elapsed * this.RightVelocity;
+        this.transform.X += elapsedMilliseconds * this.RightVelocity;
       }
     }
   }
