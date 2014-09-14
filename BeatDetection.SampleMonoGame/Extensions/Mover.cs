@@ -2,7 +2,7 @@
 {
   public abstract class Mover
   {
-    private Transform transform;
+    protected Transform transform;
 
     public Mover(Transform transform)
     {

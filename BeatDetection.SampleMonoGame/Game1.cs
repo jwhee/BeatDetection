@@ -49,7 +49,12 @@
         .Load("test", @"D:\Music\test.jpg")
         .CreateSquare("square");
 
-      InputManager.Instance.Bind("start", Keys.Space);
+      InputManager.Instance.Bind("start", Keys.Space)
+        .Bind("fire", Keys.Space)
+        .Bind("up", Keys.W)
+        .Bind("down", Keys.S)
+        .Bind("left", Keys.A)
+        .Bind("right", Keys.D);
 
       viewportWidth = GraphicsDevice.Viewport.Width;
     }
@@ -103,7 +108,7 @@
           drawSize = 1000;
         }
 
-        if (drawSize > 600 && InputManager.Instance.IsKeyDown(Keys.Space))
+        if (drawSize > 600 && InputManager.Instance.IsKeyDown("fire"))
         {
           hit = true;
         }

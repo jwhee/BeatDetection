@@ -39,6 +39,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Extensions\KeyboardInputMover.cs" />
     <Compile Include="Extensions\Mover.cs" />
     <Compile Include="Extensions\Transform.cs" />
     <Compile Include="Game1.cs" />
