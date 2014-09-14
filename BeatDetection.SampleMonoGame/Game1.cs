@@ -49,6 +49,8 @@
         .Load("test", @"D:\Music\test.jpg")
         .CreateSquare("square");
 
+      InputManager.Instance.Bind("start", Keys.Space);
+
       viewportWidth = GraphicsDevice.Viewport.Width;
     }
 
@@ -83,7 +85,7 @@
       InputManager.Instance.Update();
 
       var elapsed = gameTime.ElapsedGameTime.Milliseconds;
-      if (!soundEngine.IsMusicPlaying && InputManager.Instance.IsKeyPressed(Keys.Space))
+      if (!soundEngine.IsMusicPlaying && InputManager.Instance.IsKeyPressed("start"))
       {
         soundEngine.LoadMusic(@"D:\Music\test.mp3")
           .SetBeatDetectionFrequency(100.0f, 150.0f)
