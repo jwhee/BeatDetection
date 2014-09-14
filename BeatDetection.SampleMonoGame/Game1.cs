@@ -85,11 +85,10 @@
       var elapsed = gameTime.ElapsedGameTime.Milliseconds;
       if (!soundEngine.IsMusicPlaying && InputManager.Instance.IsKeyPressed(Keys.Space))
       {
-        var task = soundEngine.LoadMusic(@"D:\Music\test.mp3")
-                    .SetBeatDetectionFrequency(100.0f, 150.0f)
-                    .StartBeatDetection()
-                    .PlayMusic(3);
-
+        soundEngine.LoadMusic(@"D:\Music\test.mp3")
+          .SetBeatDetectionFrequency(100.0f, 150.0f)
+          .StartBeatDetection()
+          .PlayMusic(3);
       }
 
       soundEngine.Update(elapsed);
