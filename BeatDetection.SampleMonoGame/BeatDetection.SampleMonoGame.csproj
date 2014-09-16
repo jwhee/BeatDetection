@@ -42,6 +42,7 @@
     <Compile Include="Extensions\Actor.cs" />
     <Compile Include="Extensions\KeyboardInputMover.cs" />
     <Compile Include="Extensions\Mover.cs" />
+    <Compile Include="Extensions\SpriteBatchExtensions.cs" />
     <Compile Include="Extensions\Transform.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Extensions\InputManager.cs" />
