@@ -13,6 +13,7 @@
     GraphicsDeviceManager graphics;
     SpriteBatch spriteBatch;
     ISoundEngine soundEngine;
+    SpriteFont font;
 
     public Game1()
       : base()
@@ -57,6 +58,7 @@
         .Bind("left", Keys.A)
         .Bind("right", Keys.D);
 
+      font = Content.Load<SpriteFont>("Arial18");
       player = new GameObject(new Transform() { Size = 10.0f })
         .SetMover(new KeyboardInputMover() { Velocity = 0.5f })
         .SetActor(new PlayerActor());
@@ -184,6 +186,8 @@
 
       // Draw Player
       player.Draw(spriteBatch);
+
+      spriteBatch.DrawString(font, "Press SPACE to start", new Vector2(20, 20), Color.Black, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0.0f);
 
       spriteBatch.End();
 
