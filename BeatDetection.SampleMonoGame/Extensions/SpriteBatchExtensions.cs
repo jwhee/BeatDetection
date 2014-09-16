@@ -4,7 +4,7 @@
 
   public static class SpriteBatchExtensions
   {
-    public static void Draw(
+    public static void Render(
       this SpriteBatch spriteBatch,
       Texture2D texture,
       float xPos,
@@ -39,7 +39,7 @@
         0.0f);
     }
 
-    public static void Draw(
+    public static void Render(
       this SpriteBatch spriteBatch,
       Texture2D texture,
       Transform transform,
@@ -47,7 +47,7 @@
       Color? color = null,
       Vector2? origin = null)
     {
-      spriteBatch.Draw(
+      spriteBatch.Render(
         texture, 
         transform.X, 
         transform.Y,
