@@ -187,7 +187,7 @@
       // Draw Player
       player.Draw(spriteBatch);
 
-      spriteBatch.DrawString(font, "Press SPACE to start", new Vector2(20, 20), Color.Black, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0.0f);
+      spriteBatch.RenderText(font, "Press SPACE to start", 20, 20, Color.Black);
 
       spriteBatch.End();
 

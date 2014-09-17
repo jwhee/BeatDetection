@@ -57,5 +57,50 @@
         color,
         origin);
     }
+
+    public static void RenderText(
+      this SpriteBatch spriteBatch,
+      SpriteFont spriteFont,
+      string text,
+      float xPos,
+      float yPos,
+      Color? color = null,
+      float scale = 1.0f,
+      float rotation = 0.0f)
+    {
+      var colorParam = Color.Black;
+      if (color.HasValue)
+      {
+        colorParam = color.Value;
+      }
+
+      spriteBatch.DrawString(
+        spriteFont,
+        text,
+        new Vector2(xPos, yPos),
+        colorParam,
+        rotation,
+        Vector2.Zero,
+        scale,
+        SpriteEffects.None,
+        0.0f);
+    }
+
+    public static void RenderText(
+      this SpriteBatch spriteBatch,
+      SpriteFont spriteFont,
+      string text,
+      Transform transform,
+      Color? color = null)
+    {
+      spriteBatch.RenderText(
+        spriteFont,
+        text,
+        transform.X,
+        transform.Y,
+        color,
+        transform.Size,
+        transform.Rotation);
+    }
   }
 }
