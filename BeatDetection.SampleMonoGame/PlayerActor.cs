@@ -18,16 +18,10 @@
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-      spriteBatch.Draw(
+      spriteBatch.Render(
         Texture2DManager.Instance["square"],
-        new Vector2(this.Transform.X, this.Transform.Y),
-        null,
-        Color.Pink,
-        this.Transform.Rotation,
-        Vector2.One,
-        this.Transform.Size,
-        SpriteEffects.None,
-        0.0f);
+        this.Transform,
+        color: Color.Pink);
     }
   }
 }
